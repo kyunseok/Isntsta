@@ -1,1 +1,3 @@
-streamlit, beautifulsoup4, pandas
+streamlit
+beautifulsoup4
+pandas
