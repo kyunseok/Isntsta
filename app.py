@@ -14,14 +14,23 @@ def parse_instagram_html(html_content):
         if 'instagram.com' in href:
             # URL 파라미터가 붙어있을 경우를 대비해 순수 아이디만 안전하게 추출
             username = href.split('?')[0].strip('/').split('/')[-1]
-            records.append({'Username': username})
+            
+            # [기능 복구] HTML 구조에서 팔로우 시작 날짜 추출
+            parent_div = a_tag.parent.parent
+            date_str = ""
+            if parent_div:
+                divs = parent_div.find_all('div')
+                if len(divs) > 1:
+                    date_str = divs[-1].text.strip()
+                    
+            records.append({'Username': username, 'Date': date_str})
             
     return pd.DataFrame(records).drop_duplicates()
 
 st.set_page_config(page_title="인스타그램 맞팔 분석기", page_icon="🕵️‍♂️", layout="centered")
 
 st.title("🕵️‍♂️ 인스타그램 맞팔 분석기")
-st.write("인스타그램 백업 데이터를 통해 나를 맞팔하지 않는 사람을 찾고, 클릭 한 번으로 프로필을 확인해 보세요.")
+st.write("인스타그램 백업 데이터를 통해 나를 맞팔하지 않는 사람을 찾고, 팔로우 시작 날짜도 함께 확인해 보세요.")
 
 tab1, tab2 = st.tabs(["📦 ZIP 파일로 한 번에 업로드", "📄 HTML 파일 개별 업로드"])
 
@@ -111,19 +120,25 @@ if data_loaded:
         st.caption("표 안의 파란색 **인스타그램 아이디**를 클릭하면 해당 사용자의 프로필로 바로 이동합니다.")
         
         if unfollowers:
-            # 클릭 가능한 프로필 링크 생성을 위한 데이터프레임 구성
-            result_df = pd.DataFrame(
-                [f"https://www.instagram.com/{user}/" for user in sorted(list(unfollowers))],
-                columns=["Profile_URL"]
-            )
+            # [변경 포인트] 내가 팔로우한 원본 목록(following_df)에서 맞팔 안 한 사람들의 데이터만 필터링 (날짜 데이터 보존)
+            result_df = following_df[following_df['Username'].isin(unfollowers)].copy()
             
-            # LinkColumn을 활용하여 URL을 깔끔한 아이디 텍스트로 치환하여 렌더링
+            # 프로필 주소 컬럼 추가
+            result_df["Profile_URL"] = result_df["Username"].apply(lambda x: f"https://www.instagram.com/{x}/")
+            
+            # 알파벳 순 정렬
+            result_df = result_df.sort_values(by="Username").reset_index(drop=True)
+            
+            # LinkColumn과 날짜 컬럼을 함께 테이블에 렌더링
             st.dataframe(
-                result_df,
+                result_df[["Profile_URL", "Date"]],
                 column_config={
                     "Profile_URL": st.column_config.LinkColumn(
                         "사용자 이름 (클릭 시 이동)",
                         display_text="https://www\\.instagram\\.com/([^/]+)/?"
+                    ),
+                    "Date": st.column_config.Column(
+                        "내가 팔로우를 시작한 날짜"
                     )
                 },
                 hide_index=True,
@@ -132,8 +147,7 @@ if data_loaded:
             
             # 아이디 텍스트만 필요한 경우를 위해 복사 기능 제공
             with st.expander("📝 텍스트로 아이디만 복사하기"):
-                sorted_usernames = sorted(list(unfollowers))
-                st.code('\n'.join(sorted_usernames))
+                st.code('\n'.join(result_df['Username'].tolist()))
         else:
             st.balloons()
             st.success("모든 팔로잉 사용자가 회원님을 맞팔하고 있습니다! 🎉")
