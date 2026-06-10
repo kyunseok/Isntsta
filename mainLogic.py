@@ -3,7 +3,7 @@ import pandas as pd
 import zipfile
 
 # 분리한 모듈들을 불러옵니다.
-from data_parser import InstagramHTMLParser
+from dataParser import InstagramHTMLParser
 from analyzer import InstagramAnalyzer
 
 class InstagramAppUI:
