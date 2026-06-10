@@ -26,7 +26,7 @@ def parse_instagram_html(html_content):
     return pd.DataFrame(records).drop_duplicates()
 
 def fetch_follower_count(username):
-    # 인스타그램 비공식 Web API 사용 (로그인 리다이렉트 방지 및 정확한 숫자 추출)
+    # 인스타그램 비공식 Web API 사용
     url = f"https://www.instagram.com/api/v1/users/web_profile_info/?username={username}"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
@@ -38,7 +38,6 @@ def fetch_follower_count(username):
         response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
             data = response.json()
-            # JSON 구조에서 팔로워 수 정수값만 정확하게 파싱
             return int(data['data']['user']['edge_followed_by']['count'])
     except Exception:
         pass
@@ -47,7 +46,6 @@ def fetch_follower_count(username):
 
 st.set_page_config(page_title="인스타그램 맞팔 분석기", layout="centered")
 
-# 브라우저 알림 권한을 미리 요청하는 자바스크립트 주입
 components.html("""
     <script>
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
@@ -168,12 +166,24 @@ if data_loaded:
             
             progress_bar = st.progress(0, text="크롤링을 준비 중입니다...")
             
+            # --- 수정된 크롤링 진행률 표시 로직 ---
             for i, user in enumerate(unfollowers_list):
-                progress_bar.progress((i) / total, text=f"[{i+1}/{total}] {user} 계정 분석 중...")
+                # 1. 정보를 요청하기 전에 '요청 중' 텍스트 표시
+                progress_bar.progress((i) / total, text=f"[{i+1}/{total}] '{user}' 계정 정보 요청 중...")
                 
+                # 2. 데이터 크롤링 수행
                 count = fetch_follower_count(user)
-                time.sleep(1.5)
                 
+                # 3. 크롤링 결과에 따라 텍스트 다르게 구성
+                if count == -1:
+                    status_text = "접근 차단(-1)"
+                else:
+                    status_text = f"{count}명"
+                
+                # 4. 사용자가 실시간으로 볼 수 있도록 결과를 바로 텍스트에 업데이트
+                progress_bar.progress((i) / total, text=f"[{i+1}/{total}] '{user}' 확인 완료 (팔로워: {status_text}) - 대기 중...")
+                
+                # 5. 분류 및 데이터 리스트 추가
                 if count == -1:
                     error_list.append(user)
                     normal_unfollowers.append(user)
@@ -181,6 +191,10 @@ if data_loaded:
                     creator_list.append({"Username": user, "Followers": count})
                 else:
                     normal_unfollowers.append(user)
+                
+                # 6. 다음 요청 전 딜레이 (IP 차단 방지)
+                time.sleep(1.5)
+            # -----------------------------------
                     
             progress_bar.progress(1.0, text="크롤링 완료")
             
@@ -207,7 +221,6 @@ if data_loaded:
             if error_list:
                 st.warning(f"접근 차단 또는 비공개로 인해 팔로워 수를 확인하지 못한 계정이 {len(error_list)}개 있습니다. 이들은 일반 지인 목록으로 분류되었습니다.")
             
-            # 크롤링 완료 시 브라우저 푸시 알림 실행
             components.html("""
                 <script>
                 if (Notification.permission === "granted") {
