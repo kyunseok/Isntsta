@@ -104,20 +104,20 @@ if data_loaded:
         st.caption("표 안의 **'프로필 링크'**를 클릭하면 해당 사용자의 인스타그램으로 바로 이동합니다.")
         
         if unfollowers:
-            # 1. 데이터프레임 생성 및 정렬
-            result_df = pd.DataFrame(list(unfollowers), columns=["Username"]).sort_values(by="Username").reset_index(drop=True)
+            # 1. 데이터프레임 생성 시, 아예 인스타그램 프로필 URL 주소로 데이터프레임을 구성합니다.
+            result_df = pd.DataFrame(
+                [f"https://www.instagram.com/{user}/" for user in sorted(list(unfollowers))],
+                columns=["Profile_URL"]
+            )
             
-            # 2. 프로필 주소 컬럼 추가
-            result_df["Profile_URL"] = result_df["Username"].apply(lambda x: f"https://www.instagram.com/{x}/")
-            
-            # 3. Streamlit에 테이블 렌더링 (LinkColumn 적용)
+            # 2. Streamlit 테이블 렌더링
             st.dataframe(
                 result_df,
                 column_config={
-                    "Username": "인스타그램 아이디",
                     "Profile_URL": st.column_config.LinkColumn(
-                        "프로필 방문하기", 
-                        display_text="🔗 프로필 열기" # 화면에 보일 텍스트
+                        "사용자 이름 (클릭 시 프로필 이동)",
+                        # 정규식을 사용하여 URL의 맨 마지막 아이디 부분만 화면에 표시되도록 설정합니다.
+                        display_text="https://www\\.instagram\\.com/([^/]+)/?"
                     )
                 },
                 hide_index=True,
