@@ -1,10 +1,7 @@
 import streamlit as st
-import streamlit.components.v1 as components
 from bs4 import BeautifulSoup
 import pandas as pd
 import zipfile
-import requests
-import time
 
 @st.cache_data
 def parse_instagram_html(html_content):
@@ -25,95 +22,60 @@ def parse_instagram_html(html_content):
             
     return pd.DataFrame(records).drop_duplicates()
 
-def fetch_follower_count(username):
-    # 인스타그램 비공식 Web API 사용
-    url = f"https://www.instagram.com/api/v1/users/web_profile_info/?username={username}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-        "X-IG-App-ID": "936619743392459",  # 인스타그램 웹 클라이언트 인증 ID
-        "Accept": "*/*"
-    }
-    
-    try:
-        response = requests.get(url, headers=headers, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            return int(data['data']['user']['edge_followed_by']['count'])
-    except Exception:
-        pass
-    
-    return -1
-
 st.set_page_config(page_title="인스타그램 맞팔 분석기", layout="centered")
 
-components.html("""
-    <script>
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-        Notification.requestPermission();
-    }
-    </script>
-""", height=0, width=0)
+st.title("🕵️‍♂️ 인스타그램 맞팔 분석기")
+st.write("인스타그램 백업 데이터를 통해 나를 맞팔하지 않는 사람을 찾고, 클릭 한 번으로 프로필을 확인해 보세요.")
 
-st.title("인스타그램 맞팔 분석기")
-st.write("인스타그램에서 다운로드한 백업 데이터를 통해 나를 맞팔하지 않는 사람을 찾아보세요.")
-
-tab1, tab2 = st.tabs(["ZIP 파일로 한 번에 업로드", "HTML 파일 개별 업로드"])
+tab1, tab2 = st.tabs(["📦 ZIP 파일로 한 번에 업로드", "📄 HTML 파일 개별 업로드"])
 
 followers_df = None
 following_df = None
 data_loaded = False
 
 with tab1:
-    st.info("인스타그램에서 다운로드한 .zip 파일을 압축 해제하지 말고 그대로 올려주세요.")
+    st.info("💡 인스타그램에서 다운로드한 **.zip 파일**을 그대로 올려주세요.")
     zip_file = st.file_uploader("ZIP 파일 업로드", type=['zip'], key='zip_upload')
     
     if zip_file is not None:
         try:
             with zipfile.ZipFile(zip_file) as z:
-                followers_path = None
-                following_path = None
-                
-                for f in z.namelist():
-                    filename = f.split('/')[-1]
-                    if filename.startswith('followers') and filename.endswith('.html'):
-                        followers_path = f
-                    elif filename.startswith('following') and filename.endswith('.html'):
-                        following_path = f
+                followers_path = next((f for f in z.namelist() if f.split('/')[-1].startswith('followers') and f.endswith('.html')), None)
+                following_path = next((f for f in z.namelist() if f.split('/')[-1].startswith('following') and f.endswith('.html')), None)
                         
                 if followers_path and following_path:
-                    with st.spinner("ZIP 파일 데이터를 분석 중입니다..."):
+                    with st.spinner("데이터를 분석 중입니다..."):
                         followers_df = parse_instagram_html(z.read(followers_path))
                         following_df = parse_instagram_html(z.read(following_path))
                     data_loaded = True
-                    st.success("데이터 추출 완료")
+                    st.success("데이터 추출 완료!")
                 else:
                     st.error("ZIP 파일 내부에 팔로워/팔로잉 HTML 파일이 없습니다. 경로를 확인해주세요.")
         except Exception as e:
-            st.error(f"ZIP 파일을 읽는 중 오류가 발생했습니다: {e}")
+            st.error(f"오류 발생: {e}")
 
 with tab2:
     col1, col2 = st.columns(2)
     with col1:
-        followers_upload = st.file_uploader("followers_1.html 업로드", type=['html'], key='follower_html')
+        followers_upload = st.file_uploader("followers.html", type=['html'])
     with col2:
-        following_upload = st.file_uploader("following.html 업로드", type=['html'], key='following_html')
+        following_upload = st.file_uploader("following.html", type=['html'])
         
     if followers_upload and following_upload:
-        with st.spinner("HTML 데이터를 분석 중입니다..."):
-            followers_df = parse_instagram_html(followers_upload.getvalue())
-            following_df = parse_instagram_html(following_upload.getvalue())
+        followers_df = parse_instagram_html(followers_upload.getvalue())
+        following_df = parse_instagram_html(following_upload.getvalue())
         data_loaded = True
-        st.success("데이터 추출 완료")
+        st.success("데이터 추출 완료!")
 
 st.divider()
 
 deactivated_input = st.text_area(
-    "분석에서 제외할 계정 (비활성화 등) - 선택사항", 
+    "🚫 분석에서 제외할 계정 (비활성화 등) - 선택사항", 
     placeholder="쉼표(,) 또는 줄바꿈으로 구분하여 입력하세요.\n예: stepblockkr, user_abc"
 )
 
 if data_loaded:
-    if st.button("맞팔 분석 시작", use_container_width=True):
+    if st.button("🚀 맞팔 분석 시작", use_container_width=True):
         deactivated_list = [x.strip() for x in deactivated_input.replace(',', '\n').split('\n') if x.strip()]
         
         followers_set = set(followers_df['Username'])
@@ -125,108 +87,45 @@ if data_loaded:
         
         unfollowers = filtered_following - filtered_followers
         
-        st.session_state['unfollowers'] = list(unfollowers)
-        
-        st.subheader("데이터 요약")
+        st.subheader("📊 데이터 요약")
         col_a, col_b, col_c = st.columns(3)
         col_a.metric("총 팔로워", f"{len(filtered_followers)}명")
         col_b.metric("총 팔로잉", f"{len(filtered_following)}명")
         col_c.metric("나를 맞팔하지 않는 사람", f"{len(unfollowers)}명", delta="-언팔로워", delta_color="inverse")
         
         st.warning("""
-        주의사항
-        * 메타 서버의 백업 지연으로 인해 최근 며칠 간의 팔로우 내역이 반영되지 않았을 수 있습니다.
-        * 상대방이 계정을 일시 비활성화했거나 영구 삭제, 또는 차단한 경우 맞팔하지 않는 계정으로 분류될 수 있습니다.
+        **⚠️ 주의사항**
+        * 메타 서버 지연으로 최근 내역이 반영되지 않았을 수 있습니다.
+        * 계정을 비활성화/삭제/차단한 경우 언팔로워로 뜰 수 있습니다. 아래 링크를 클릭해 직접 확인해 보세요!
         """)
         
         st.divider()
-        st.subheader("나를 맞팔하지 않는 계정 목록")
+        st.subheader("👀 나를 맞팔하지 않는 계정 목록")
+        st.caption("표 안의 **'프로필 링크'**를 클릭하면 해당 사용자의 인스타그램으로 바로 이동합니다.")
         
         if unfollowers:
+            # 1. 데이터프레임 생성 및 정렬
             result_df = pd.DataFrame(list(unfollowers), columns=["Username"]).sort_values(by="Username").reset_index(drop=True)
-            result_df.index = result_df.index + 1 
-            st.dataframe(result_df, use_container_width=True)
+            
+            # 2. 프로필 주소 컬럼 추가
+            result_df["Profile_URL"] = result_df["Username"].apply(lambda x: f"https://www.instagram.com/{x}/")
+            
+            # 3. Streamlit에 테이블 렌더링 (LinkColumn 적용)
+            st.dataframe(
+                result_df,
+                column_config={
+                    "Username": "인스타그램 아이디",
+                    "Profile_URL": st.column_config.LinkColumn(
+                        "프로필 방문하기", 
+                        display_text="🔗 프로필 열기" # 화면에 보일 텍스트
+                    )
+                },
+                hide_index=True,
+                use_container_width=True
+            )
+            
+            with st.expander("📝 텍스트로 아이디만 복사하기"):
+                st.code('\n'.join(result_df['Username'].tolist()))
         else:
-            st.success("모든 팔로잉 사용자가 회원님을 맞팔하고 있습니다.")
-
-    if 'unfollowers' in st.session_state and st.session_state['unfollowers']:
-        st.divider()
-        st.subheader("크리에이터 계정 분리")
-        st.write("맞팔하지 않는 계정 중, 팔로워가 일정 수 이상인 유명인이나 크리에이터를 검색하여 별도로 분류합니다.")
-        
-        threshold = st.number_input("크리에이터 기준 팔로워 수", min_value=100, value=1000, step=100)
-        
-        if st.button("크리에이터 분류 실행 (주의: 시간이 소요됩니다)"):
-            unfollowers_list = st.session_state['unfollowers']
-            total = len(unfollowers_list)
-            
-            creator_list = []
-            normal_unfollowers = []
-            error_list = []
-            
-            progress_bar = st.progress(0, text="크롤링을 준비 중입니다...")
-            
-            # --- 수정된 크롤링 진행률 표시 로직 ---
-            for i, user in enumerate(unfollowers_list):
-                # 1. 정보를 요청하기 전에 '요청 중' 텍스트 표시
-                progress_bar.progress((i) / total, text=f"[{i+1}/{total}] '{user}' 계정 정보 요청 중...")
-                
-                # 2. 데이터 크롤링 수행
-                count = fetch_follower_count(user)
-                
-                # 3. 크롤링 결과에 따라 텍스트 다르게 구성
-                if count == -1:
-                    status_text = "접근 차단(-1)"
-                else:
-                    status_text = f"{count}명"
-                
-                # 4. 사용자가 실시간으로 볼 수 있도록 결과를 바로 텍스트에 업데이트
-                progress_bar.progress((i) / total, text=f"[{i+1}/{total}] '{user}' 확인 완료 (팔로워: {status_text}) - 대기 중...")
-                
-                # 5. 분류 및 데이터 리스트 추가
-                if count == -1:
-                    error_list.append(user)
-                    normal_unfollowers.append(user)
-                elif count >= threshold:
-                    creator_list.append({"Username": user, "Followers": count})
-                else:
-                    normal_unfollowers.append(user)
-                
-                # 6. 다음 요청 전 딜레이 (IP 차단 방지)
-                time.sleep(1.5)
-            # -----------------------------------
-                    
-            progress_bar.progress(1.0, text="크롤링 완료")
-            
-            col_left, col_right = st.columns(2)
-            
-            with col_left:
-                st.markdown("#### 크리에이터 계정")
-                if creator_list:
-                    creator_df = pd.DataFrame(creator_list).sort_values(by="Followers", ascending=False).reset_index(drop=True)
-                    creator_df.index = creator_df.index + 1
-                    st.dataframe(creator_df, use_container_width=True)
-                else:
-                    st.info("조건에 맞는 크리에이터가 없습니다.")
-                    
-            with col_right:
-                st.markdown("#### 일반 지인 언팔로워")
-                if normal_unfollowers:
-                    normal_df = pd.DataFrame(normal_unfollowers, columns=["Username"]).sort_values(by="Username").reset_index(drop=True)
-                    normal_df.index = normal_df.index + 1
-                    st.dataframe(normal_df, use_container_width=True)
-                else:
-                    st.info("모두 크리에이터 계정입니다.")
-                    
-            if error_list:
-                st.warning(f"접근 차단 또는 비공개로 인해 팔로워 수를 확인하지 못한 계정이 {len(error_list)}개 있습니다. 이들은 일반 지인 목록으로 분류되었습니다.")
-            
-            components.html("""
-                <script>
-                if (Notification.permission === "granted") {
-                    new Notification("분석 완료", {
-                        body: "크리에이터 분류 작업이 성공적으로 끝났습니다. 브라우저로 돌아와 결과를 확인하세요!"
-                    });
-                }
-                </script>
-            """, height=0, width=0)
+            st.balloons()
+            st.success("모든 팔로잉 사용자가 회원님을 맞팔하고 있습니다! 🎉")
