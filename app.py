@@ -3,11 +3,10 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import zipfile
 
-# [해결책] 세션 상태 상태값 초기화
+# 세션 상태 초기화
 if 'analyzed' not in st.session_state:
     st.session_state['analyzed'] = False
 
-# 새로운 파일이 업로드되거나 변경되면 기존 분석 결과를 초기화하는 함수
 def reset_analysis():
     st.session_state['analyzed'] = False
 
@@ -71,7 +70,6 @@ data_loaded = False
 # --- 탭 1: ZIP 파일 업로드 ---
 with tab1:
     st.info("💡 인스타그램에서 다운로드한 **.zip 파일**을 압축 해제하지 말고 그대로 올려주세요.")
-    # 파일이 새로 바뀌면 기존 결과를 리셋하도록 on_change 추가
     zip_file = st.file_uploader("ZIP 파일 업로드", type=['zip'], key='zip_upload', on_change=reset_analysis)
     
     if zip_file is not None:
@@ -86,11 +84,11 @@ with tab1:
                         following_df = parse_instagram_html(z.read(following_path))
                     data_loaded = True
                 else:
-                    st.error("ZIP 파일 내부에 팔로워/팔로잉 HTML 파일이 없습니다. 올바른 인스타그램 백업 파일인지 확인해주세요.")
+                    st.error("ZIP 파일 내부에 팔로워/팔로잉 HTML 파일이 없습니다. 올바른 백업 파일인지 확인해주세요.")
         except Exception as e:
             st.error(f"오류 발생: {e}")
 
-# --- 탭 2: HTML 파일 업로드 ---
+# --- 탭 2: HTML 파일 개별 업로드 ---
 with tab2:
     col1, col2 = st.columns(2)
     with col1:
@@ -106,15 +104,12 @@ with tab2:
 
 st.divider()
 
-# --- 예외 계정 처리 ---
 deactivated_input = st.text_area(
     "🚫 분석에서 제외할 계정 (비활성화, 브랜드 등) - 선택사항", 
     placeholder="쉼표(,) 또는 줄바꿈으로 구분하여 입력하세요.\n예: stepblockkr, starbucks_korea"
 )
 
-# --- 분석 실행 및 결과 출력 ---
 if data_loaded:
-    # 1. 사용자가 처음 분석을 요청했을 때 세션 상태에 연산 결과 저장
     if st.button("🚀 맞팔 분석 시작", use_container_width=True):
         deactivated_list = [x.strip() for x in deactivated_input.replace(',', '\n').split('\n') if x.strip()]
         
@@ -127,7 +122,6 @@ if data_loaded:
         st.session_state['unfollowers'] = st.session_state['filtered_following'] - st.session_state['filtered_followers']
         st.session_state['analyzed'] = True
 
-    # 2. [버그 해결 핵심] 분석 버튼 이벤트 외부로 빼서 세션 상태 기반으로 화면 지속 유지
     if st.session_state['analyzed']:
         unfollowers = st.session_state['unfollowers']
         filtered_followers = st.session_state['filtered_followers']
@@ -136,32 +130,26 @@ if data_loaded:
         st.subheader("📊 데이터 요약")
         col_a, col_b, col_c = st.columns(3)
         col_a.metric("총 팔로워", f"{len(filtered_followers)}명")
-        col_b.metric("총 팔로잉", f"{len(filtered_following)}명")
+        # 데이터 파일 상의 총 팔로잉 수를 명시적으로 보여줌
+        col_b.metric("데이터상 총 팔로잉", f"{len(filtered_following)}명")
         col_c.metric("나를 맞팔하지 않는 사람", f"{len(unfollowers)}명", delta="-언팔로워", delta_color="inverse")
         
         st.warning("""
         **⚠️ 분석 결과 확인 전 주의사항**
-        * 메타(Meta) 서버의 백업 지연으로 최근 며칠 간의 팔로우 내역이 반영되지 않았을 수 있습니다.
-        * 상대방이 계정을 일시 비활성화했거나, 삭제, 또는 차단한 경우 언팔로워로 분류됩니다. 직접 링크를 클릭해 확인하세요!
+        * 앱에서 보이는 팔로잉 수와 위 '데이터상 총 팔로잉 수'가 다를 수 있습니다. (비활성화, 삭제, 정지된 계정이 데이터에는 포함되기 때문입니다)
+        * 의심되는 계정은 표 안의 링크를 클릭해 직접 확인해 보세요!
         """)
         
         st.divider()
         st.subheader("👀 나를 맞팔하지 않는 계정 목록")
-        st.caption("표 안의 파란색 **인스타그램 아이디**를 클릭하면 해당 사용자의 프로필로 바로 이동합니다.")
+        st.caption("표 안의 파란색 **인스타그램 아이디**를 클릭하면 프로필로 이동합니다. **컬럼 제목을 클릭하여 정렬 방식을 바꿀 수 있습니다.**")
         
         if unfollowers:
             result_df = following_df[following_df['Username'].isin(unfollowers)].copy()
             result_df["Profile_URL"] = result_df["Username"].apply(lambda x: f"https://www.instagram.com/{x}/")
             
-            # 정렬 방식을 선택하는 라디오 버튼 UI (이제 클릭해도 목록이 유지됩니다)
-            sort_order = st.radio(
-                "📅 날짜 정렬 방식",
-                ["오래된 순 (오름차순)", "최신 순 (내림차순)"],
-                horizontal=True
-            )
-            
-            is_ascending = True if sort_order == "오래된 순 (오름차순)" else False
-            result_df = result_df.sort_values(by="Parsed_Date", ascending=is_ascending, na_position='last').reset_index(drop=True)
+            # 기본적으로 컴퓨터가 인식할 수 있는 날짜(Parsed_Date) 기준으로 '오래된 순(True)' 정렬 수행
+            result_df = result_df.sort_values(by="Parsed_Date", ascending=True, na_position='last').reset_index(drop=True)
             
             st.dataframe(
                 result_df[["Profile_URL", "Date"]],
