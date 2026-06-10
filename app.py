@@ -111,6 +111,14 @@ if data_loaded:
         col_b.metric("총 팔로잉", f"{len(filtered_following)}명")
         col_c.metric("나를 맞팔하지 않는 사람", f"{len(unfollowers)}명", delta="-언팔로워", delta_color="inverse")
         
+        # 💡여기에 경고 메시지 추가!
+        st.warning("""
+        **⚠️ 분석 결과 확인 전 주의사항**
+        * 메타(Meta) 서버의 백업 지연으로 인해 **최근 며칠 간의 팔로우/언팔로우 내역이 반영되지 않았을 수 있습니다.**
+        * 상대방이 계정을 **일시 비활성화했거나 영구 삭제, 또는 차단**한 경우 '맞팔하지 않는 계정'으로 분류될 수 있습니다.
+        * 의심스러운 계정은 직접 인스타그램에서 한 번 더 확인하시는 것을 권장합니다.
+        """)
+        
         st.divider()
         st.subheader("👀 나를 맞팔하지 않는 계정 목록")
         
