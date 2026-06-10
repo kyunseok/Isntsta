@@ -15,13 +15,31 @@ def parse_instagram_html(html_content):
             # URL 파라미터가 붙어있을 경우를 대비해 순수 아이디만 안전하게 추출
             username = href.split('?')[0].strip('/').split('/')[-1]
             
-            # [기능 복구] HTML 구조에서 팔로우 시작 날짜 추출
+            # HTML 구조에서 팔로우 시작 날짜 추출 및 포맷 변환
             parent_div = a_tag.parent.parent
             date_str = ""
             if parent_div:
                 divs = parent_div.find_all('div')
                 if len(divs) > 1:
-                    date_str = divs[-1].text.strip()
+                    raw_date = divs[-1].text.strip()
+                    
+                    # [날짜 포맷 변경] "1월 03, 2026 1:50 오전" -> "2026년 1월 3일 오전 1시 50분"
+                    try:
+                        # 쉼표를 제거하고 공백을 기준으로 텍스트 분리
+                        parts = raw_date.replace(',', '').split()
+                        if len(parts) >= 5:
+                            month = int(parts[0].replace('월', '')) # '1월' -> 1
+                            day = int(parts[1])                   # '03' -> 3
+                            year = int(parts[2])                  # '2026' -> 2026
+                            hour, minute = map(int, parts[3].split(':')) # '1:50' -> 1, 50
+                            ampm = parts[4]                       # '오전' 또는 '오후'
+                            
+                            # 읽기 편한 한국식 날짜 형태로 재조립
+                            date_str = f"{year}년 {month}월 {day}일 {ampm} {hour}시 {minute}분"
+                        else:
+                            date_str = raw_date # 혹시 모를 다른 예외 포맷인 경우 원본 유지
+                    except Exception:
+                        date_str = raw_date # 파싱 에러 시 원본 유지
                     
             records.append({'Username': username, 'Date': date_str})
             
@@ -87,22 +105,17 @@ deactivated_input = st.text_area(
 # --- 분석 실행 및 결과 출력 ---
 if data_loaded:
     if st.button("🚀 맞팔 분석 시작", use_container_width=True):
-        # 1. 입력받은 예외 계정 리스트화
         deactivated_list = [x.strip() for x in deactivated_input.replace(',', '\n').split('\n') if x.strip()]
         
-        # 2. Set 연산을 위한 데이터 변환
         followers_set = set(followers_df['Username'])
         following_set = set(following_df['Username'])
         deactivated_set = set(deactivated_list)
         
-        # 3. 예외 계정을 제외한 순수 데이터 필터링
         filtered_following = following_set - deactivated_set
         filtered_followers = followers_set - deactivated_set
         
-        # 4. 언팔로워(내가 팔로우하지만 나를 팔로우하지 않는 사람) 추출
         unfollowers = filtered_following - filtered_followers
         
-        # --- 화면 표출 ---
         st.subheader("📊 데이터 요약")
         col_a, col_b, col_c = st.columns(3)
         col_a.metric("총 팔로워", f"{len(filtered_followers)}명")
@@ -120,16 +133,10 @@ if data_loaded:
         st.caption("표 안의 파란색 **인스타그램 아이디**를 클릭하면 해당 사용자의 프로필로 바로 이동합니다.")
         
         if unfollowers:
-            # [변경 포인트] 내가 팔로우한 원본 목록(following_df)에서 맞팔 안 한 사람들의 데이터만 필터링 (날짜 데이터 보존)
             result_df = following_df[following_df['Username'].isin(unfollowers)].copy()
-            
-            # 프로필 주소 컬럼 추가
             result_df["Profile_URL"] = result_df["Username"].apply(lambda x: f"https://www.instagram.com/{x}/")
-            
-            # 알파벳 순 정렬
             result_df = result_df.sort_values(by="Username").reset_index(drop=True)
             
-            # LinkColumn과 날짜 컬럼을 함께 테이블에 렌더링
             st.dataframe(
                 result_df[["Profile_URL", "Date"]],
                 column_config={
@@ -145,7 +152,6 @@ if data_loaded:
                 use_container_width=True
             )
             
-            # 아이디 텍스트만 필요한 경우를 위해 복사 기능 제공
             with st.expander("📝 텍스트로 아이디만 복사하기"):
                 st.code('\n'.join(result_df['Username'].tolist()))
         else:
