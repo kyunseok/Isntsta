@@ -12,38 +12,48 @@ def parse_instagram_html(html_content):
     for a_tag in soup.find_all('a'):
         href = a_tag.get('href', '')
         if 'instagram.com' in href:
-            # URL 파라미터가 붙어있을 경우를 대비해 순수 아이디만 안전하게 추출
             username = href.split('?')[0].strip('/').split('/')[-1]
             
-            # HTML 구조에서 팔로우 시작 날짜 추출 및 포맷 변환
             parent_div = a_tag.parent.parent
             date_str = ""
+            parsed_date = pd.NaT # 정렬을 위한 기본 빈 날짜값
+            
             if parent_div:
                 divs = parent_div.find_all('div')
                 if len(divs) > 1:
                     raw_date = divs[-1].text.strip()
                     
-                    # [날짜 포맷 변경] "1월 03, 2026 1:50 오전" -> "2026년 1월 3일 오전 1시 50분"
                     try:
-                        # 쉼표를 제거하고 공백을 기준으로 텍스트 분리
+                        # 텍스트 분리 및 시간 계산
                         parts = raw_date.replace(',', '').split()
                         if len(parts) >= 5:
-                            month = int(parts[0].replace('월', '')) # '1월' -> 1
-                            day = int(parts[1])                   # '03' -> 3
-                            year = int(parts[2])                  # '2026' -> 2026
-                            hour, minute = map(int, parts[3].split(':')) # '1:50' -> 1, 50
-                            ampm = parts[4]                       # '오전' 또는 '오후'
+                            month = int(parts[0].replace('월', ''))
+                            day = int(parts[1])
+                            year = int(parts[2])
+                            hour, minute = map(int, parts[3].split(':'))
+                            ampm = parts[4]
                             
-                            # 읽기 편한 한국식 날짜 형태로 재조립
+                            # 화면 표출용 친절한 텍스트
                             date_str = f"{year}년 {month}월 {day}일 {ampm} {hour}시 {minute}분"
+                            
+                            # 컴퓨터 정렬용 24시간제 변환
+                            calc_hour = hour
+                            if ampm == '오후' and hour != 12:
+                                calc_hour += 12
+                            elif ampm == '오전' and hour == 12:
+                                calc_hour = 0
+                                
+                            # 정렬을 위한 실제 Timestamp 객체 생성
+                            parsed_date = pd.Timestamp(year, month, day, calc_hour, minute)
                         else:
-                            date_str = raw_date # 혹시 모를 다른 예외 포맷인 경우 원본 유지
+                            date_str = raw_date
                     except Exception:
-                        date_str = raw_date # 파싱 에러 시 원본 유지
+                        date_str = raw_date
                     
-            records.append({'Username': username, 'Date': date_str})
+            # 화면 표시용(Date)과 정렬용(Parsed_Date)을 함께 저장
+            records.append({'Username': username, 'Date': date_str, 'Parsed_Date': parsed_date})
             
-    return pd.DataFrame(records).drop_duplicates()
+    return pd.DataFrame(records).drop_duplicates(subset=['Username'])
 
 st.set_page_config(page_title="인스타그램 맞팔 분석기", page_icon="🕵️‍♂️", layout="centered")
 
@@ -64,7 +74,6 @@ with tab1:
     if zip_file is not None:
         try:
             with zipfile.ZipFile(zip_file) as z:
-                # 내부 파일 경로를 동적으로 탐색
                 followers_path = next((f for f in z.namelist() if f.split('/')[-1].startswith('followers') and f.endswith('.html')), None)
                 following_path = next((f for f in z.namelist() if f.split('/')[-1].startswith('following') and f.endswith('.html')), None)
                         
@@ -135,8 +144,19 @@ if data_loaded:
         if unfollowers:
             result_df = following_df[following_df['Username'].isin(unfollowers)].copy()
             result_df["Profile_URL"] = result_df["Username"].apply(lambda x: f"https://www.instagram.com/{x}/")
-            result_df = result_df.sort_values(by="Username").reset_index(drop=True)
             
+            # [추가됨] 정렬 방식을 선택하는 라디오 버튼 UI
+            sort_order = st.radio(
+                "📅 날짜 정렬 방식",
+                ["오래된 순 (오름차순)", "최신 순 (내림차순)"],
+                horizontal=True
+            )
+            
+            # 선택한 방식에 따라 Parsed_Date(실제 시간 데이터)를 기준으로 정렬 수행
+            is_ascending = True if sort_order == "오래된 순 (오름차순)" else False
+            result_df = result_df.sort_values(by="Parsed_Date", ascending=is_ascending, na_position='last').reset_index(drop=True)
+            
+            # 출력 시에는 숨겨진 Parsed_Date를 빼고 Profile_URL과 문자열 Date만 표출
             st.dataframe(
                 result_df[["Profile_URL", "Date"]],
                 column_config={
