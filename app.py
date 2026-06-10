@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from bs4 import BeautifulSoup
 import pandas as pd
 import zipfile
@@ -25,33 +26,36 @@ def parse_instagram_html(html_content):
     return pd.DataFrame(records).drop_duplicates()
 
 def fetch_follower_count(username):
-    url = f"https://www.instagram.com/{username}/"
+    # 인스타그램 비공식 Web API 사용 (로그인 리다이렉트 방지 및 정확한 숫자 추출)
+    url = f"https://www.instagram.com/api/v1/users/web_profile_info/?username={username}"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-        "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7"
+        "X-IG-App-ID": "936619743392459",  # 인스타그램 웹 클라이언트 인증 ID
+        "Accept": "*/*"
     }
     
     try:
         response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            meta_tag = soup.find("meta", property="og:description")
-            
-            if meta_tag:
-                content = meta_tag.get("content", "")
-                if "Followers" in content:
-                    follower_str = content.split(" Followers")[0].strip().replace(",", "")
-                    if "K" in follower_str:
-                        return int(float(follower_str.replace("K", "")) * 1000)
-                    elif "M" in follower_str:
-                        return int(float(follower_str.replace("M", "")) * 1000000)
-                    else:
-                        return int(follower_str)
-        return -1
+            data = response.json()
+            # JSON 구조에서 팔로워 수 정수값만 정확하게 파싱
+            return int(data['data']['user']['edge_followed_by']['count'])
     except Exception:
-        return -1
+        pass
+    
+    return -1
 
 st.set_page_config(page_title="인스타그램 맞팔 분석기", layout="centered")
+
+# 브라우저 알림 권한을 미리 요청하는 자바스크립트 주입
+components.html("""
+    <script>
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission();
+    }
+    </script>
+""", height=0, width=0)
+
 st.title("인스타그램 맞팔 분석기")
 st.write("인스타그램에서 다운로드한 백업 데이터를 통해 나를 맞팔하지 않는 사람을 찾아보세요.")
 
@@ -202,3 +206,14 @@ if data_loaded:
                     
             if error_list:
                 st.warning(f"접근 차단 또는 비공개로 인해 팔로워 수를 확인하지 못한 계정이 {len(error_list)}개 있습니다. 이들은 일반 지인 목록으로 분류되었습니다.")
+            
+            # 크롤링 완료 시 브라우저 푸시 알림 실행
+            components.html("""
+                <script>
+                if (Notification.permission === "granted") {
+                    new Notification("분석 완료", {
+                        body: "크리에이터 분류 작업이 성공적으로 끝났습니다. 브라우저로 돌아와 결과를 확인하세요!"
+                    });
+                }
+                </script>
+            """, height=0, width=0)
