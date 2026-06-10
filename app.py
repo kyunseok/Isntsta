@@ -58,8 +58,12 @@ def parse_instagram_html(html_content):
 
 st.set_page_config(page_title="인스타그램 맞팔 분석기", page_icon="🕵️‍♂️", layout="centered")
 
-st.title("🕵️‍♂️ 인스타그램 맞팔 분석기")
-st.write("인스타그램 백업 데이터를 통해 나를 맞팔하지 않는 사람을 찾고, 팔로우 시작 날짜도 함께 확인해 보세요.")
+#########
+### UI
+#########
+
+st.title("Isntsta")
+st.write("내가 팔로우하고 있는 상대방이 나를 팔로우하고 있지 않을까요?")
 
 tab1, tab2 = st.tabs(["📦 ZIP 파일로 한 번에 업로드", "📄 HTML 파일 개별 업로드"])
 
@@ -84,9 +88,9 @@ with tab1:
                         following_df = parse_instagram_html(z.read(following_path))
                     data_loaded = True
                 else:
-                    st.error("ZIP 파일 내부에 팔로워/팔로잉 HTML 파일이 없습니다. 올바른 백업 파일인지 확인해주세요.")
-        except Exception as e:
-            st.error(f"오류 발생: {e}")
+                    st.error("파일이 유효하지 않습니다.")
+        except Exception as e: #에러 내용 일부러 숨기는거임
+            st.error(f"오류 발생가 발생했습니다.")
 
 # --- 탭 2: HTML 파일 개별 업로드 ---
 with tab2:
@@ -105,8 +109,8 @@ with tab2:
 st.divider()
 
 deactivated_input = st.text_area(
-    "🚫 분석에서 제외할 계정 (비활성화, 브랜드 등) - 선택사항", 
-    placeholder="쉼표(,) 또는 줄바꿈으로 구분하여 입력하세요.\n예: stepblockkr, starbucks_korea"
+    "🚫 분석에서 제외할 계정 (비활성화, 브랜드, 대형 크리에이터 계정 등) - 선택사항", 
+    placeholder="쉼표(,) 또는 줄바꿈으로 구분하여 입력하세요.\n예: gov_korea, k_yseok.07"
 )
 
 if data_loaded:
@@ -135,14 +139,14 @@ if data_loaded:
         col_c.metric("나를 맞팔하지 않는 사람", f"{len(unfollowers)}명", delta="-언팔로워", delta_color="inverse")
         
         st.warning("""
-        **⚠️ 분석 결과 확인 전 주의사항**
-        * 앱에서 보이는 팔로잉 수와 위 '데이터상 총 팔로잉 수'가 다를 수 있습니다. (비활성화, 삭제, 정지된 계정이 데이터에는 포함되기 때문입니다)
-        * 의심되는 계정은 표 안의 링크를 클릭해 직접 확인해 보세요!
+        **⚠️ Isntsta 사용 전 주의사항**
+        * 특정 계정이 비활성화, 삭제, 정지된 경우 인앱에서 확인되는 팔로워/팔로잉 수가 위 숫자와 다를 수 있습니다.
+        * 아래 표는 참고용일 뿐, 실제 결과는 직접 확인하여 주시기 바랍니다.
         """)
         
         st.divider()
-        st.subheader("👀 나를 맞팔하지 않는 계정 목록")
-        st.caption("표 안의 파란색 **인스타그램 아이디**를 클릭하면 프로필로 이동합니다. **컬럼 제목을 클릭하여 정렬 방식을 바꿀 수 있습니다.**")
+        st.subheader("👀 분석 결과")
+        st.caption("**인스타그램 아이디**를 클릭하면 해당 프로필로 이동합니다. **컬럼 제목을 클릭하여 정렬 방식을 바꿀 수 있습니다.**")
         
         if unfollowers:
             result_df = following_df[following_df['Username'].isin(unfollowers)].copy()
@@ -155,7 +159,7 @@ if data_loaded:
                 result_df[["Profile_URL", "Date"]],
                 column_config={
                     "Profile_URL": st.column_config.LinkColumn(
-                        "사용자 이름 (클릭 시 이동)",
+                        "사용자 이름",
                         display_text="https://www\\.instagram\\.com/([^/]+)/?"
                     ),
                     "Date": st.column_config.Column(
