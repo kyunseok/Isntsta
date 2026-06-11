@@ -31,7 +31,7 @@ class InstagramAppUI:
         st.write("나를 맞팔하지 않는 계정을 안전하고 빠르게 찾아보세요.")
         
         # 3개의 탭 구성 (사용 방법, 파일 업로드, 개발자 소개)
-        tab1, tab2, tab3 = st.tabs(["📖 사용 방법", "📦 ZIP 파일 업로드", "🧑‍💻 개발자 소개"])
+        tab1, tab2, tab3 = st.tabs(["📖 사용 방법", "📦 ZIP 파일 업로드", "🧑‍💻 About"])
 
         with tab1:
             self.render_instructions()
@@ -169,14 +169,15 @@ class InstagramAppUI:
         
         st.markdown("""
         **윤슥**
+        Contact: kyunseok@postech.ac.kr
 
-        website:
+        Other websites:
         - Isntsta
         - KAnalyzer
         """)
         
         st.divider()
-        st.info("본 분석기는 사용자의 인스타그램 백업 데이터를 외부 서버로 전송하거나 저장하지 않으며, 웹 브라우저의 로컬 메모리 내에서만 안전하게 동작합니다.")
+        st.info("본 웹사이트는 사용자의 데이터를 외부 서버로 전송하거나 저장하지 않으며, 웹 브라우저의 로컬 메모리 내에서만 안전하게 동작합니다.")
 
 if __name__ == "__main__":
     app = InstagramAppUI()
