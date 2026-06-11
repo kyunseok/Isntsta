@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import zipfile
 
-# 변경된 모듈 이름을 불러옵니다.
 from dataParser import InstagramDataParser
 from analyzer import InstagramAnalyzer
 
@@ -14,7 +13,7 @@ class InstagramAppUI:
         self.init_session_state()
 
     def setup_page(self):
-        st.set_page_config(page_title="인스타그램 맞팔 분석기", page_icon="🕵️‍♂️", layout="centered")
+        st.set_page_config(page_title="Isntsta", page_icon="🕵️‍♂️", layout="centered")
 
     def init_session_state(self):
         if 'analyzed' not in st.session_state:
@@ -27,10 +26,10 @@ class InstagramAppUI:
         st.session_state['data_loaded'] = False
 
     def run(self):
-        st.title("🕵️‍♂️ 인스타그램 맞팔 분석기")
-        st.write("인스타그램 백업 데이터를 통해 나를 맞팔하지 않는 사람을 찾고, 팔로우 시작 날짜도 함께 확인해 보세요.")
+        st.title("🕵️‍♂️ Isntsta")
+        st.write("나를 맞팔하지 않는 사람을 찾아보세요.")
         
-        tab1, tab2 = st.tabs(["📖 사용 방법 (필독)", "📦 ZIP 파일 업로드"])
+        tab1, tab2 = st.tabs(["📖 사용 방법", "📦 ZIP 파일 업로드"])
 
         with tab1:
             self.render_instructions()
@@ -42,18 +41,19 @@ class InstagramAppUI:
     def render_instructions(self):
         st.subheader("💡 인스타그램 데이터 다운로드 및 사이트 이용 방법")
         
-        st.markdown("#### 1단계: 내 데이터 다운로드 요청하기")
+        st.markdown("#### 1단계: Instagram에 내 데이터 다운로드 요청하기")
         st.markdown("""
-        1. 인스타그램 모바일 앱 프로필에서 우측 상단 **메뉴(줄 3개)** ➔ **[내 활동]** ➔ **[내 정보 다운로드]**를 누릅니다.
-        2. **[정보 다운로드 또는 전송]** ➔ **[일부 정보]**를 선택하고 **'팔로워 및 팔로잉'** 항목만 체크합니다.
-        3. 기기로 다운로드하기를 누른 후, 파일 형식은 **HTML** 또는 **JSON** 중 아무거나 선택하셔도 됩니다.
-        4. 날짜 범위는 **[전체 기간]**으로 설정하고 다운로드를 요청합니다.
+        1. Instagram 모바일 앱 프로필에서 우측 상단 **메뉴(줄 3개)** ➔ **[계정 센터]** ➔ **[내 정보 및 권한]**을 누릅니다.
+        2. **[내 정보 내보내기]** ➔ **[내보내기 만들기]** -> **Instagram** -> **[기기로 내보내기]**를 순서대로 선택합니다.
+        3. **[정보 맞춤 설정]**에 반드시 내 **'폴라워 및 팔로링' 정보가 있어야 합니다.
+        4. 또한 **[기간]**을 **'전체 기간'**으로 선택해야 정확한 분석이 가능합니다.
+        4. 다 선택했으면 **[내보내기 시작]**을 누릅니다.
         """)
-        st.image("https://dummyimage.com/800x300/f0f2f6/000000.png&text=Step+1:+Instagram+App+Screenshots", caption="1단계: 인스타그램 설정 화면 예시")
+        st.image("instagramFileDownload.jpeg", caption="1단계: 인스타그램 설정 화면 예시")
 
         st.markdown("#### 2단계: ZIP 파일 다운로드")
-        st.markdown("* 10분~1시간 내에 가입된 이메일로 알림이 오면, 링크를 눌러 `.zip` 형태의 백업 파일을 다운로드합니다.")
-        st.image("https://dummyimage.com/800x200/f0f2f6/000000.png&text=Step+2:+Email+Download+Screenshot", caption="2단계: 이메일 다운로드 화면 예시")
+        st.markdown("* 10분~1시간 내에 이메일로 알림이 오면, 링크를 눌러 `.zip` 파일을 다운로드합니다.")
+        st.image("instagramGmail.png", caption="2단계: 이메일 다운로드 화면 예시")
 
         st.markdown("#### 3단계: 분석기에 파일 업로드하기")
         st.markdown("* 위 **[📦 ZIP 파일 업로드]** 탭을 클릭하고, 다운받은 `.zip` 파일을 **압축을 풀지 말고 그대로** 회색 박스 안에 끌어다 놓습니다.")
@@ -83,7 +83,7 @@ class InstagramAppUI:
                         st.session_state['data_loaded'] = True
                         st.success("데이터 추출 완료! 아래에서 분석을 시작하세요.")
                     else:
-                        st.error("ZIP 파일 내부에 팔로워/팔로잉 데이터가 없습니다. 안내된 1단계 방법에 따라 데이터를 다운로드했는지 확인해 주세요.")
+                        st.error("ZIP 파일 내부에 팔로워/팔로잉 데이터가 없습니다.")
             except Exception as e:
                 st.error(f"ZIP 파일을 읽는 중 오류가 발생했습니다: {e}")
 
@@ -93,7 +93,7 @@ class InstagramAppUI:
 
             deactivated_input = st.text_area(
                 "🚫 분석에서 제외할 계정 (비활성화, 유명인, 브랜드 등) - 선택사항", 
-                placeholder="쉼표(,) 또는 줄바꿈으로 구분하여 입력하세요.\n예: stepblockkr, starbucks_korea"
+                placeholder="쉼표(,) 또는 줄바꿈으로 구분하여 입력하세요.\n예: gov_korea, k_yseok.07"
             )
 
             if st.button("🚀 맞팔 분석 시작", use_container_width=True):
@@ -120,13 +120,13 @@ class InstagramAppUI:
         
         st.warning("""
         **⚠️ 분석 결과 확인 전 주의사항**
-        * 앱에서 보이는 팔로잉 수와 위 '데이터상 총 팔로잉 수'가 다를 수 있습니다. (비활성화, 삭제, 정지된 계정이 데이터에는 포함되기 때문입니다)
-        * 의심되는 계정은 표 안의 링크를 클릭해 직접 확인해 보세요!
+        * 비활성화, 삭제, 정지된 계정이 있을 경우 분석 결과가 실제와 다를 수 있습니다.
+        * 분석 결과는 참고용일 뿐이며, 실제 결과는 반드시 Instagram 앱에 직접 들어가서 확인하시기 바랍니다.
         """)
         
         st.divider()
         st.subheader("👀 나를 맞팔하지 않는 계정 목록")
-        st.caption("표 안의 파란색 **인스타그램 아이디**를 클릭하면 프로필로 이동합니다. **컬럼 제목(Date 등)을 클릭하여 오름차순/내림차순을 바꿀 수 있습니다.**")
+        st.caption("**인스타그램 아이디**를 클릭하면 프로필로 이동합니다.")
         
         result_df = result['result_df']
         
@@ -137,7 +137,7 @@ class InstagramAppUI:
                 result_df[["Profile_URL", "Date"]],
                 column_config={
                     "Profile_URL": st.column_config.LinkColumn(
-                        "사용자 이름 (클릭 시 이동)",
+                        "사용자 이름",
                         display_text="https://www\\.instagram\\.com/([^/]+)/?"
                     ),
                     "Date": st.column_config.Column(
