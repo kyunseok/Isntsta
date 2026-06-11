@@ -67,7 +67,7 @@ class InstagramAppUI:
 
         st.markdown("#### 3단계: 분석기에 파일 업로드하기")
         st.markdown("* 상단의 **ZIP 파일 업로드** 탭을 선택한 뒤, 다운로드한 .zip 파일을 **압축을 풀지 말고 파일 업로드 박스에 그대로** 끌어다 놓습니다.")
-        st.image("guide_file_upload.png", caption="3단계: 분석기 파일 업로드 화면")
+        st.image("instgailGmail.png", caption="3단계: 분석기 파일 업로드 화면")
 
         st.markdown("#### 4단계: 맞팔 분석 시작")
         st.markdown("* 파일이 정상적으로 올라가면 하단에 생성되는 **맞팔 분석 시작** 버튼을 클릭하여 결과를 확인합니다.")
