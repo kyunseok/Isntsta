@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import zipfile
 
-# 분리한 모듈들을 불러옵니다.
+# 파일명에 맞추어 import 수정
 from dataParser import InstagramHTMLParser
 from analyzer import InstagramAnalyzer
 
@@ -27,17 +27,42 @@ class InstagramAppUI:
         st.session_state['data_loaded'] = False
 
     def run(self):
-        st.title("🕵️‍♂️ Isntsta")
-        st.write("나를 맞팔하지 않는 사람 추적")
+        st.title("🕵️‍♂️ 인스타그램 맞팔 분석기")
+        st.write("인스타그램 백업 데이터를 통해 나를 맞팔하지 않는 사람을 찾고, 팔로우 시작 날짜도 함께 확인해 보세요.")
         
         self.render_upload_section()
         self.render_analysis_section()
 
     def render_upload_section(self):
-        tab1, tab2 = st.tabs(["📦 ZIP 파일로 한 번에 업로드", "📄 HTML 파일 개별 업로드"])
+        # 탭 3개로 확장하고, 첫 번째 탭을 '사용 방법'으로 지정
+        tab1, tab2, tab3 = st.tabs(["📖 사용 방법", "📦 ZIP 파일로 한 번에 업로드", "📄 HTML 파일 개별 업로드"])
 
+        # --- 탭 1: 사용 방법 ---
         with tab1:
-            st.info("💡 인스타그램에서 다운로드한 **.zip 파일**을 압축 해제하지 말고 그대로 올려주세요.")
+            st.subheader("💡 인스타그램 데이터 다운로드 및 사이트 이용 방법")
+            st.markdown("""
+            **1단계: 인스타그램에서 내 데이터 다운로드 요청하기**
+            1. 인스타그램 모바일 앱에서 내 프로필로 이동 후, 우측 상단 **메뉴(줄 3개)**를 누릅니다.
+            2. **[내 활동]** 메뉴를 누르고, 맨 아래로 내려가 **[내 정보 다운로드]**를 선택합니다.
+            3. **[정보 다운로드 또는 전송]** ➔ **[일부 정보]**를 선택하고 **'팔로워 및 팔로잉'** 항목만 체크합니다.
+            4. 기기로 다운로드하기를 누른 후, 파일 형식을 반드시 **HTML**로 선택하세요! (JSON은 지원하지 않습니다)
+            5. 날짜 범위는 **[전체 기간]**으로 설정하고 다운로드를 요청합니다.
+
+            **2단계: ZIP 파일 다운로드**
+            * 인스타그램 서버 상태에 따라 10분~1시간 내에 가입된 이메일로 데이터가 준비되었다는 알림이 옵니다. 
+            * 이메일 안의 링크를 눌러 `.zip` 형태의 백업 파일을 다운로드하세요.
+
+            **3단계: 분석기에 파일 업로드하기**
+            * 옆의 **[📦 ZIP 파일로 한 번에 업로드]** 탭을 클릭하고, 다운받은 `.zip` 파일을 **압축을 풀지 말고 그대로** 끌어다 놓습니다.
+            * *(만약 ZIP 파일 인식이 잘 안 된다면, 파일 압축을 푼 뒤 `followers_1.html`과 `following.html` 파일을 찾아 **[📄 HTML 파일 개별 업로드]** 탭에 각각 올려주세요.)*
+
+            **4단계: 분석 시작!**
+            * 파일이 정상적으로 올라가면 아래에 **[🚀 맞팔 분석 시작]** 버튼이 나타납니다. 버튼을 눌러 결과를 확인하세요!
+            """)
+
+        # --- 탭 2: ZIP 파일 업로드 ---
+        with tab2:
+            st.info("💡 다운로드한 **.zip 파일**을 압축 해제하지 말고 그대로 올려주세요.")
             zip_file = st.file_uploader("ZIP 파일 업로드", type=['zip'], key='zip_upload', on_change=self.reset_analysis)
             
             if zip_file is not None and not st.session_state['data_loaded']:
@@ -51,30 +76,34 @@ class InstagramAppUI:
                                 st.session_state['followers_df'] = InstagramHTMLParser.parse(z.read(followers_path))
                                 st.session_state['following_df'] = InstagramHTMLParser.parse(z.read(following_path))
                             st.session_state['data_loaded'] = True
+                            st.success("데이터 추출 완료! 화면 아래에서 분석을 시작하세요.")
                         else:
-                            st.error("유효하지 않은 파일")
+                            st.error("ZIP 파일 내부에 팔로워/팔로잉 HTML 파일이 없습니다. 올바른 백업 파일인지 확인해주세요.")
                 except Exception as e:
-                    st.error(f"오류가 발생했습니다.")
+                    st.error(f"오류 발생: {e}")
 
-        with tab2:
+        # --- 탭 3: HTML 파일 업로드 ---
+        with tab3:
+            st.info("💡 ZIP 파일 업로드가 안 될 경우, 압축을 풀고 HTML 파일 두 개를 각각 올려주세요.")
             col1, col2 = st.columns(2)
             with col1:
-                followers_upload = st.file_uploader("followers.html 업로드", type=['html'], key='followers_indiv', on_change=self.reset_analysis)
+                followers_upload = st.file_uploader("followers.html (나를 팔로우하는 사람)", type=['html'], key='followers_indiv', on_change=self.reset_analysis)
             with col2:
-                following_upload = st.file_uploader("following.html 업로드", type=['html'], key='following_indiv', on_change=self.reset_analysis)
+                following_upload = st.file_uploader("following.html (내가 팔로우하는 사람)", type=['html'], key='following_indiv', on_change=self.reset_analysis)
                 
             if followers_upload and following_upload and not st.session_state['data_loaded']:
                 with st.spinner("데이터를 분석 중입니다..."):
                     st.session_state['followers_df'] = InstagramHTMLParser.parse(followers_upload.getvalue())
                     st.session_state['following_df'] = InstagramHTMLParser.parse(following_upload.getvalue())
                 st.session_state['data_loaded'] = True
+                st.success("데이터 추출 완료! 화면 아래에서 분석을 시작하세요.")
 
     def render_analysis_section(self):
         st.divider()
 
         deactivated_input = st.text_area(
-            "🚫 분석에서 제외할 계정 (비활성화, 브랜드, 대형 크리에이터 등) - 선택사항", 
-            placeholder="쉼표(,) 또는 줄바꿈으로 구분하여 입력하세요.\n예: gov_korea, k_yseok.07"
+            "🚫 분석에서 제외할 계정 (비활성화, 유명인, 브랜드 등) - 선택사항", 
+            placeholder="쉼표(,) 또는 줄바꿈으로 구분하여 입력하세요.\n예: stepblockkr, starbucks_korea"
         )
 
         if st.session_state['data_loaded']:
@@ -102,13 +131,13 @@ class InstagramAppUI:
         
         st.warning("""
         **⚠️ 분석 결과 확인 전 주의사항**
-        * 특정 계정이 비활성화, 정지, 삭제된 경우 실제 팔로워 / 팔로링 수와 다를 수 있습니다.
-        * 아래 표는 참고용일 뿐이며, 실제 결과는 반드시 앱을 이용하여 확인하시기 바랍니다.
+        * 앱에서 보이는 팔로잉 수와 위 '데이터상 총 팔로잉 수'가 다를 수 있습니다. (비활성화, 삭제, 정지된 계정이 데이터에는 포함되기 때문입니다)
+        * 의심되는 계정은 표 안의 링크를 클릭해 직접 확인해 보세요!
         """)
         
         st.divider()
-        st.subheader("👀 Isntsta분석 결과")
-        st.caption("**인스타그램 아이디**를 클릭하면 프로필로 이동합니다.")
+        st.subheader("👀 나를 맞팔하지 않는 계정 목록")
+        st.caption("표 안의 파란색 **인스타그램 아이디**를 클릭하면 프로필로 이동합니다. **컬럼 제목(Date 등)을 클릭하여 오름차순/내림차순을 바꿀 수 있습니다.**")
         
         result_df = result['result_df']
         
@@ -119,7 +148,7 @@ class InstagramAppUI:
                 result_df[["Profile_URL", "Date"]],
                 column_config={
                     "Profile_URL": st.column_config.LinkColumn(
-                        "사용자 이름",
+                        "사용자 이름 (클릭 시 이동)",
                         display_text="https://www\\.instagram\\.com/([^/]+)/?"
                     ),
                     "Date": st.column_config.Column(
