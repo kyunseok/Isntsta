@@ -59,11 +59,11 @@ class InstagramAppUI:
         3. **내보내기 시작**을 누릅니다.
         """)
         # 통일된 규칙의 명확한 이미지 파일 이름으로 수정
-        st.image("guide_instagram_request.jpg", caption="1단계: 인스타그램 데이터 요청 화면")
+        st.image("instagramFileDownload.jpg", caption="1단계: 인스타그램 데이터 요청 화면")
 
         st.markdown("#### 2단계: 백업 파일 다운로드")
         st.markdown("* 요청 후 대략 10분에서 1시간 이내에 인스타그램으로부터 이메일 알림이 도착합니다. 이메일 본문의 링크를 클릭하여 .zip 파일을 다운로드해 주세요.")
-        st.image("guide_email_notification.png", caption="2단계: 이메일 알림 및 다운로드 화면")
+        st.image("instagramGmail.png", caption="2단계: 이메일 알림 및 다운로드 화면")
 
         st.markdown("#### 3단계: 분석기에 파일 업로드하기")
         st.markdown("* 상단의 **ZIP 파일 업로드** 탭을 선택한 뒤, 다운로드한 .zip 파일을 **압축을 풀지 말고 파일 업로드 박스에 그대로** 끌어다 놓습니다.")
