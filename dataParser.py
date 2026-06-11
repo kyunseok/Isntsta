@@ -1,13 +1,22 @@
-import streamlit as st
 from bs4 import BeautifulSoup
 import pandas as pd
+import json
+from datetime import datetime
 
-class InstagramHTMLParser:
-    """HTML 데이터를 파싱하여 데이터프레임으로 변환하는 책임을 가집니다."""
+class InstagramDataParser:
+    """HTML 및 JSON 데이터를 파싱하여 데이터프레임으로 변환하는 책임을 가집니다."""
     
     @staticmethod
-    @st.cache_data
-    def parse(html_content: bytes) -> pd.DataFrame:
+    def parse(file_content: bytes, file_type: str) -> pd.DataFrame:
+        if file_type == 'json':
+            return InstagramDataParser._parse_json(file_content)
+        elif file_type == 'html':
+            return InstagramDataParser._parse_html(file_content)
+        else:
+            raise ValueError("지원하지 않는 파일 형식입니다.")
+
+    @staticmethod
+    def _parse_html(html_content: bytes) -> pd.DataFrame:
         soup = BeautifulSoup(html_content, 'html.parser')
         records = []
         
@@ -50,4 +59,42 @@ class InstagramHTMLParser:
                         
                 records.append({'Username': username, 'Date': date_str, 'Parsed_Date': parsed_date})
                 
+        return pd.DataFrame(records).drop_duplicates(subset=['Username'])
+
+    @staticmethod
+    def _parse_json(json_content: bytes) -> pd.DataFrame:
+        data = json.loads(json_content)
+        records = []
+        
+        # JSON 내부 구조를 재귀적으로 탐색하여 유저 정보 추출
+        def extract_users(obj):
+            if isinstance(obj, dict):
+                if "string_list_data" in obj and len(obj["string_list_data"]) > 0:
+                    item = obj["string_list_data"][0]
+                    if "value" in item and "timestamp" in item:
+                        username = item["value"]
+                        ts = item["timestamp"]
+                        
+                        # 유닉스 타임스탬프를 한국어 날짜 형식으로 변환
+                        dt = datetime.fromtimestamp(ts)
+                        ampm = "오후" if dt.hour >= 12 else "오전"
+                        display_hour = dt.hour - 12 if dt.hour > 12 else dt.hour
+                        display_hour = 12 if display_hour == 0 else display_hour
+                        
+                        date_str = f"{dt.year}년 {dt.month}월 {dt.day}일 {ampm} {display_hour}시 {dt.minute}분"
+                        parsed_date = pd.Timestamp(dt.year, dt.month, dt.day, dt.hour, dt.minute)
+                        
+                        records.append({
+                            'Username': username,
+                            'Date': date_str,
+                            'Parsed_Date': parsed_date
+                        })
+                else:
+                    for value in obj.values():
+                        extract_users(value)
+            elif isinstance(obj, list):
+                for item in obj:
+                    extract_users(item)
+                    
+        extract_users(data)
         return pd.DataFrame(records).drop_duplicates(subset=['Username'])
