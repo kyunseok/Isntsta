@@ -54,11 +54,11 @@ class InstagramAppUI:
         5. **[기간]**은 **전체 기간**으로 해야 정확한 데이터를 분석할 수 있습니다.
         """)
         # 캡처 이미지를 깃허브에 올리고 아래 주소 대신 "step1.png" 처럼 파일명을 적어주세요.
-        st.image("https://dummyimage.com/800x300/f0f2f6/000000.png&text=Step+1:+Instagram+App+Screenshots", caption="1단계: 인스타그램 설정 화면 예시")
+        st.image("instagramFileDownload.jpeg", caption="1단계: 인스타그램 설정 화면 예시")
 
         st.markdown("#### 2단계: ZIP 파일 다운로드")
         st.markdown("* 10분~1시간 내에 이메일로 알림이 오면, 링크를 눌러 `.zip` 형태의 파일을 다운로드합니다.")
-        st.image("https://dummyimage.com/800x200/f0f2f6/000000.png&text=Step+2:+Email+Download+Screenshot", caption="2단계: 이메일 다운로드 화면 예시")
+        st.image("instagramGmail.png", caption="2단계: 이메일 다운로드 화면 예시")
 
         st.markdown("#### 3단계: 분석기에 파일 업로드하기")
         st.markdown("* 위 **[📦 ZIP 파일 업로드]** 탭을 클릭하고, 다운받은 `.zip` 파일을 **압축을 풀지 말고 그대로** 회색 박스 안에 끌어다 놓습니다.")
