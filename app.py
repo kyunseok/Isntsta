@@ -1,10 +1,7 @@
 import streamlit as st
+from bs4 import BeautifulSoup
 import pandas as pd
 import zipfile
-
-# 파일명에 맞추어 import 수정
-from dataParser import InstagramHTMLParser
-from analyzer import InstagramAnalyzer
 
 class InstagramAppUI:
     """Streamlit UI 렌더링 및 애플리케이션 상태 관리를 담당합니다."""
@@ -34,36 +31,38 @@ class InstagramAppUI:
         self.render_analysis_section()
 
     def render_upload_section(self):
-        # 탭 3개로 확장하고, 첫 번째 탭을 '사용 방법'으로 지정
-        tab1, tab2, tab3 = st.tabs(["📖 사용 방법", "📦 ZIP 파일로 한 번에 업로드", "📄 HTML 파일 개별 업로드"])
+        # 탭을 2개로 줄이고 개별 파일 업로드를 제거했습니다.
+        tab1, tab2 = st.tabs(["📖 사용 방법 (필독)", "📦 ZIP 파일 업로드"])
 
         # --- 탭 1: 사용 방법 ---
         with tab1:
             st.subheader("💡 인스타그램 데이터 다운로드 및 사이트 이용 방법")
+            
+            st.markdown("#### 1단계: 내 데이터 다운로드 요청하기")
             st.markdown("""
-            **1단계: 인스타그램에서 내 데이터 다운로드 요청하기**
-            1. 인스타그램 모바일 앱에서 내 프로필로 이동 후, 우측 상단 **메뉴(줄 3개)**를 누릅니다.
-            2. **[내 활동]** 메뉴를 누르고, 맨 아래로 내려가 **[내 정보 다운로드]**를 선택합니다.
-            3. **[정보 다운로드 또는 전송]** ➔ **[일부 정보]**를 선택하고 **'팔로워 및 팔로잉'** 항목만 체크합니다.
-            4. 기기로 다운로드하기를 누른 후, 파일 형식을 반드시 **HTML**로 선택하세요! (JSON은 지원하지 않습니다)
-            5. 날짜 범위는 **[전체 기간]**으로 설정하고 다운로드를 요청합니다.
-
-            **2단계: ZIP 파일 다운로드**
-            * 인스타그램 서버 상태에 따라 10분~1시간 내에 가입된 이메일로 데이터가 준비되었다는 알림이 옵니다. 
-            * 이메일 안의 링크를 눌러 `.zip` 형태의 백업 파일을 다운로드하세요.
-
-            **3단계: 분석기에 파일 업로드하기**
-            * 옆의 **[📦 ZIP 파일로 한 번에 업로드]** 탭을 클릭하고, 다운받은 `.zip` 파일을 **압축을 풀지 말고 그대로** 끌어다 놓습니다.
-            * *(만약 ZIP 파일 인식이 잘 안 된다면, 파일 압축을 푼 뒤 `followers_1.html`과 `following.html` 파일을 찾아 **[📄 HTML 파일 개별 업로드]** 탭에 각각 올려주세요.)*
-
-            **4단계: 분석 시작!**
-            * 파일이 정상적으로 올라가면 아래에 **[🚀 맞팔 분석 시작]** 버튼이 나타납니다. 버튼을 눌러 결과를 확인하세요!
+            1. 인스타그램 모바일 앱 프로필에서 우측 상단 **메뉴(줄 3개)** ➔ **[내 활동]** ➔ **[내 정보 다운로드]**를 누릅니다.
+            2. **[정보 다운로드 또는 전송]** ➔ **[일부 정보]**를 선택하고 **'팔로워 및 팔로잉'** 항목만 체크합니다.
+            3. 기기로 다운로드하기를 누른 후, 파일 형식을 반드시 **HTML**로 선택하세요! (JSON은 불가)
+            4. 날짜 범위는 **[전체 기간]**으로 설정하고 다운로드를 요청합니다.
             """)
+            # 꿀팁: 캡처 이미지를 깃허브에 올리고 아래 주소 대신 "step1.png" 처럼 파일명을 적어주세요.
+            st.image("https://dummyimage.com/800x300/f0f2f6/000000.png&text=Step+1:+Instagram+App+Screenshots", caption="1단계: 인스타그램 설정 화면 예시")
+
+            st.markdown("#### 2단계: ZIP 파일 다운로드")
+            st.markdown("* 10분~1시간 내에 가입된 이메일로 알림이 오면, 링크를 눌러 `.zip` 형태의 백업 파일을 다운로드합니다.")
+            st.image("https://dummyimage.com/800x200/f0f2f6/000000.png&text=Step+2:+Email+Download+Screenshot", caption="2단계: 이메일 다운로드 화면 예시")
+
+            st.markdown("#### 3단계: 분석기에 파일 업로드하기")
+            st.markdown("* 옆의 **[📦 ZIP 파일 업로드]** 탭을 클릭하고, 다운받은 `.zip` 파일을 **압축을 풀지 말고 그대로** 회색 박스 안에 끌어다 놓습니다.")
+            st.image("https://dummyimage.com/800x250/f0f2f6/000000.png&text=Step+3:+Upload+ZIP+File", caption="3단계: 화면에 파일 업로드하기")
+
+            st.markdown("#### 4단계: 분석 시작!")
+            st.markdown("* 파일이 정상적으로 올라가면 화면 아래에 **[🚀 맞팔 분석 시작]** 버튼이 나타납니다. 버튼을 눌러 결과를 확인하세요!")
 
         # --- 탭 2: ZIP 파일 업로드 ---
         with tab2:
             st.info("💡 다운로드한 **.zip 파일**을 압축 해제하지 말고 그대로 올려주세요.")
-            zip_file = st.file_uploader("ZIP 파일 업로드", type=['zip'], key='zip_upload', on_change=self.reset_analysis)
+            zip_file = st.file_uploader("ZIP 파일 업로드 (.zip)", type=['zip'], key='zip_upload', on_change=self.reset_analysis)
             
             if zip_file is not None and not st.session_state['data_loaded']:
                 try:
@@ -72,31 +71,15 @@ class InstagramAppUI:
                         following_path = next((f for f in z.namelist() if f.split('/')[-1].startswith('following') and f.endswith('.html')), None)
                                 
                         if followers_path and following_path:
-                            with st.spinner("데이터를 분석 중입니다..."):
+                            with st.spinner("데이터를 추출 중입니다. 잠시만 기다려주세요..."):
                                 st.session_state['followers_df'] = InstagramHTMLParser.parse(z.read(followers_path))
                                 st.session_state['following_df'] = InstagramHTMLParser.parse(z.read(following_path))
                             st.session_state['data_loaded'] = True
-                            st.success("데이터 추출 완료! 화면 아래에서 분석을 시작하세요.")
+                            st.success("데이터 추출 완료! 화면 아래로 스크롤하여 분석을 시작하세요.")
                         else:
-                            st.error("ZIP 파일 내부에 팔로워/팔로잉 HTML 파일이 없습니다. 올바른 백업 파일인지 확인해주세요.")
+                            st.error("ZIP 파일 내부에 팔로워/팔로잉 데이터가 없습니다. 안내된 1단계 방법에 따라 HTML 형식으로 제대로 다운로드했는지 확인해 주세요.")
                 except Exception as e:
-                    st.error(f"오류 발생: {e}")
-
-        # --- 탭 3: HTML 파일 업로드 ---
-        with tab3:
-            st.info("💡 ZIP 파일 업로드가 안 될 경우, 압축을 풀고 HTML 파일 두 개를 각각 올려주세요.")
-            col1, col2 = st.columns(2)
-            with col1:
-                followers_upload = st.file_uploader("followers.html (나를 팔로우하는 사람)", type=['html'], key='followers_indiv', on_change=self.reset_analysis)
-            with col2:
-                following_upload = st.file_uploader("following.html (내가 팔로우하는 사람)", type=['html'], key='following_indiv', on_change=self.reset_analysis)
-                
-            if followers_upload and following_upload and not st.session_state['data_loaded']:
-                with st.spinner("데이터를 분석 중입니다..."):
-                    st.session_state['followers_df'] = InstagramHTMLParser.parse(followers_upload.getvalue())
-                    st.session_state['following_df'] = InstagramHTMLParser.parse(following_upload.getvalue())
-                st.session_state['data_loaded'] = True
-                st.success("데이터 추출 완료! 화면 아래에서 분석을 시작하세요.")
+                    st.error(f"ZIP 파일을 읽는 중 오류가 발생했습니다: {e}")
 
     def render_analysis_section(self):
         st.divider()
@@ -165,6 +148,9 @@ class InstagramAppUI:
             st.balloons()
             st.success("모든 팔로잉 사용자가 회원님을 맞팔하고 있습니다! 🎉")
 
+# ==========================================
+# 앱 실행
+# ==========================================
 if __name__ == "__main__":
     app = InstagramAppUI()
     app.run()
