@@ -2,9 +2,17 @@ import streamlit as st
 import pandas as pd
 import zipfile
 import os
+import base64
 
 from dataParser import InstagramDataParser
 from analyzer import InstagramAnalyzer
+
+# [추가] 로고 이미지를 HTML에 깔끔하게 넣기 위해 Base64로 변환하는 함수
+def get_base64_image(image_path):
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    return ""
 
 class InstagramAppUI:
     def __init__(self):
@@ -25,22 +33,38 @@ class InstagramAppUI:
         st.session_state['data_loaded'] = False
 
     def run(self):
-        # [CSS 테마] 다른 탭에 영향을 주지 않도록 본문 색상 변경 코드를 제거하고, 타이틀 그라데이션만 남겼습니다.
-        st.markdown("""
+        # 로고 파일(logo.png)이 있으면 불러오고, 없으면 기본 이모지 사용
+        logo_b64 = get_base64_image("logo.png")
+        if logo_b64:
+            logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="height: 4.5rem; margin-right: 15px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">'
+        else:
+            logo_html = '<span style="font-size: 4.5rem; margin-right: 15px;">🕵️‍♂️</span>'
+
+        # [CSS 테마] 제목 폰트 크기 확대 (3rem -> 4.5rem) 및 로고 정렬
+        st.markdown(f"""
         <style>
-        .insta-title {
+        .title-container {{
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }}
+        .insta-title {{
             background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 800;
-            font-size: 3rem;
+            font-weight: 900;
+            font-size: 4.5rem; /* 크기 대폭 확대 */
             margin-bottom: 0px;
             padding-bottom: 0px;
-        }
+            line-height: 1.2;
+        }}
         </style>
+        <div class="title-container">
+            {logo_html}
+            <p class="insta-title">Isntsta</p>
+        </div>
         """, unsafe_allow_html=True)
         
-        st.markdown('<p class="insta-title">🕵️‍♂️ Isntsta</p>', unsafe_allow_html=True)
         st.write("나를 맞팔하지 않는 계정을 안전하고 빠르게 찾아보세요.")
         
         tab1, tab2, tab3, tab4 = st.tabs(["About", "사용 방법", "📦 ZIP 파일 업로드", "Developer"])
@@ -82,7 +106,6 @@ class InstagramAppUI:
     def render_instructions(self):
         st.subheader("💡 인스타그램 데이터 다운로드 및 이용 방법")
         
-        # [사용 방법 탭 전용 색상 적용] 다른 탭에 영향을 주지 않도록 HTML/CSS 인라인 스타일로 핑크색을 명시했습니다.
         st.markdown('<h4 style="color: #E1306C; font-weight: bold;">1단계: Instagram에 내 데이터 다운로드 요청하기</h4>', unsafe_allow_html=True)
         
         if os.path.exists("step1.jpg"):
@@ -90,21 +113,22 @@ class InstagramAppUI:
         else:
             st.info("📷 (1단계 이미지 준비 중)")
             
+        # [수정] 굵은 글씨(strong)들을 인스타그램 노란색(#FCAF45)으로 변경
         st.markdown("""
         <div style="color: #C13584; font-size: 1rem;">
             <ol>
-                <li>Instagram 앱에서 <strong style="color: #E1306C;">메뉴(줄 3개)</strong> ➔ <strong style="color: #E1306C;">계정 센터</strong> ➔ <strong style="color: #E1306C;">내 정보 및 권한</strong>으로 이동합니다.</li>
-                <li><strong style="color: #E1306C;">내 정보 내보내기</strong> ➔ <strong style="color: #E1306C;">내보내기 만들기</strong> ➔ <strong style="color: #E1306C;">Instagram</strong> ➔ <strong style="color: #E1306C;">기기로 내보내기</strong>를 순서대로 선택합니다.</li>
+                <li>Instagram 앱에서 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">메뉴(줄 3개)</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">계정 센터</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내 정보 및 권한</strong>으로 이동합니다.</li>
+                <li><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내 정보 내보내기</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내보내기 만들기</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">Instagram</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">기기로 내보내기</strong>를 순서대로 선택합니다.</li>
             </ol>
             <hr style="margin: 10px 0px; border-color: #f0f2f6;">
-            <p style="margin-bottom: 5px;"><strong style="color: #E1306C;">🚨 중요 설정 안내</strong></p>
+            <p style="margin-bottom: 5px;"><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">🚨 중요 설정 안내</strong></p>
             <ul>
-                <li><strong style="color: #E1306C;">정보 맞춤 설정</strong> 단계에서 반드시 <strong style="color: #E1306C;">팔로워 및 팔로잉</strong> 정보가 체크되어 있어야 합니다.</li>
-                <li><strong style="color: #E1306C;">기간</strong> 설정 시 <strong style="color: #E1306C;">전체 기간</strong>을 선택하셔야 누락 없는 정확한 분석이 가능합니다.</li>
+                <li><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">정보 맞춤 설정</strong> 단계에서 반드시 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">팔로워 및 팔로잉</strong> 정보가 체크되어 있어야 합니다.</li>
+                <li><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">기간</strong> 설정 시 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">전체 기간</strong>을 선택하셔야 누락 없는 정확한 분석이 가능합니다.</li>
             </ul>
             <hr style="margin: 10px 0px; border-color: #f0f2f6;">
             <ol start="3">
-                <li><strong style="color: #E1306C;">내보내기 시작</strong>을 누릅니다.</li>
+                <li><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내보내기 시작</strong>을 누릅니다.</li>
             </ol>
         </div>
         """, unsafe_allow_html=True)
@@ -118,7 +142,7 @@ class InstagramAppUI:
             st.info("📷 (2단계 이미지 준비 중)")
 
         st.markdown('<h4 style="color: #E1306C; font-weight: bold; margin-top: 20px;">3단계: 분석기에 파일 업로드하기</h4>', unsafe_allow_html=True)
-        st.markdown('<ul style="color: #C13584;"><li>상단의 <strong style="color: #E1306C;">ZIP 파일 업로드</strong> 탭을 선택한 뒤, 다운로드한 .zip 파일을 <strong style="color: #E1306C;">압축을 풀지 말고 파일 업로드 박스에 그대로</strong> 끌어다 놓습니다.</li></ul>', unsafe_allow_html=True)
+        st.markdown('<ul style="color: #C13584;"><li>상단의 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">ZIP 파일 업로드</strong> 탭을 선택한 뒤, 다운로드한 .zip 파일을 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">압축을 풀지 말고 파일 업로드 박스에 그대로</strong> 끌어다 놓습니다.</li></ul>', unsafe_allow_html=True)
         
         if os.path.exists("step3.jpg"):
             st.image("step3.jpg", caption="3단계: 분석기 파일 업로드 화면", width=250)
@@ -126,7 +150,7 @@ class InstagramAppUI:
             st.info("📷 (3단계 이미지 준비 중)")
 
         st.markdown('<h4 style="color: #E1306C; font-weight: bold; margin-top: 20px;">4단계: 맞팔 분석 시작</h4>', unsafe_allow_html=True)
-        st.markdown('<ul style="color: #C13584;"><li>파일이 정상적으로 올라가면 하단에 생성되는 <strong style="color: #E1306C;">맞팔 분석 시작</strong> 버튼을 클릭하여 결과를 확인합니다.</li></ul>', unsafe_allow_html=True)
+        st.markdown('<ul style="color: #C13584;"><li>파일이 정상적으로 올라가면 하단에 생성되는 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">맞팔 분석 시작</strong> 버튼을 클릭하여 결과를 확인합니다.</li></ul>', unsafe_allow_html=True)
 
     def render_upload_section(self):
         st.info("💡 다운로드한 .zip 파일을 압축 해제하지 말고 그대로 업로드해 주세요. (HTML 및 JSON 형식 모두 지원)")
