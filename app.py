@@ -96,7 +96,7 @@ class InstagramAppUI:
         * 🔒 **완벽한 개인정보 보호**
           사용자의 데이터를 외부 서버로 절대 전송하거나 저장하지 않습니다. 모든 분석은 현재 켜져 있는 **웹 브라우저(내 컴퓨터/스마트폰) 안에서만** 이루어지며, 창을 닫는 즉시 데이터는 모두 삭제됩니다.
           
-        * 🛡️ **계정 정지 및 해킹 위험 제로**
+        * 🛡️ **합법적이고 안전한 방법**
           시중의 언팔로우 확인 앱들은 인스타그램 아이디와 비밀번호를 요구하거나 불법 봇(Bot)을 이용하기 때문에 계정이 해킹당하거나 정지(섀도우 밴)될 위험이 매우 높습니다. **Isntsta는 인스타그램 공식 백업 데이터만 활용하므로 계정에 아무런 영향을 주지 않습니다.**
           
         * ⚡ **빠르고 직관적인 분석**
@@ -252,7 +252,7 @@ class InstagramAppUI:
         Other websites:
         - [Isntsta](https://isntsta.streamlit.app/)
         - [Kakaotalk Analyzer](https://kakaodog.streamlit.app/)
-        - [Guit](https://guit.streamlit.app/)
+        - [Guitarhana](https://guitarhana.streamlit.app/)
         """)
         
         st.divider()
