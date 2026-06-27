@@ -7,8 +7,6 @@ from dataParser import InstagramDataParser
 from analyzer import InstagramAnalyzer
 
 class InstagramAppUI:
-    """Streamlit UI 렌더링 및 애플리케이션 상태 관리를 담당합니다."""
-    
     def __init__(self):
         self.setup_page()
         self.init_session_state()
@@ -27,7 +25,6 @@ class InstagramAppUI:
         st.session_state['data_loaded'] = False
 
     def run(self):
-        # [테마 적용] 인스타그램 특유의 그라데이션 색상을 제목에 입히는 CSS
         st.markdown("""
         <style>
         .insta-title {
@@ -45,8 +42,7 @@ class InstagramAppUI:
         st.markdown('<p class="insta-title">🕵️‍♂️ Isntsta</p>', unsafe_allow_html=True)
         st.write("나를 맞팔하지 않는 계정을 안전하고 빠르게 찾아보세요.")
         
-        # [탭 변경] 4개의 탭으로 구성 (About 추가, Developer 변경)
-        tab1, tab2, tab3, tab4 = st.tabs(["ℹ️ About", "📖 사용 방법", "📦 ZIP 파일 업로드", "🧑‍💻 Developer"])
+        tab1, tab2, tab3, tab4 = st.tabs(["About", "사용 방법", "📦 ZIP 파일 업로드", "Developer"])
 
         with tab1:
             self.render_about_app_section()
@@ -72,20 +68,26 @@ class InstagramAppUI:
         st.markdown("""
         #### ✨ 왜 Isntsta를 써야 할까요?
         
-        * 🔒 **완벽한 개인정보 보호 (No Server Storage)**
-          여러분의 데이터를 외부 서버로 절대 전송하거나 저장하지 않습니다. 모든 분석은 현재 켜져 있는 **웹 브라우저(내 컴퓨터/스마트폰) 안에서만** 이루어지며, 창을 닫는 즉시 데이터는 모두 증발합니다.
+        * 🔒 **완벽한 개인정보 보호**
+          사용자의 데이터를 외부 서버로 절대 전송하거나 저장하지 않습니다. 모든 분석은 현재 켜져 있는 **웹 브라우저(내 컴퓨터/스마트폰) 안에서만** 이루어지며, 창을 닫는 즉시 데이터는 모두 삭제됩니다.
           
-        * 🛡️ **계정 정지 및 해킹 위험 제로 (100% Safe)**
+        * 🛡️ **계정 정지 및 해킹 위험 제로**
           시중의 언팔로우 확인 앱들은 인스타그램 아이디와 비밀번호를 요구하거나 불법 봇(Bot)을 이용하기 때문에 계정이 해킹당하거나 정지(섀도우 밴)될 위험이 매우 높습니다. **Isntsta는 인스타그램 공식 백업 데이터만 활용하므로 계정에 아무런 영향을 주지 않습니다.**
           
         * ⚡ **빠르고 직관적인 분석**
-          귀찮은 프로그램 설치나 회원가입이 필요 없습니다. 다운로드한 `.zip` 파일을 화면에 던져 넣기만 하면 즉시 분석 결과를 확인할 수 있습니다.
+          귀찮은 프로그램 설치나 광고, 회원가입, 결제가 필요하지 않습니다. 다운로드한 파일을 통해 즉시 결과를 확인할 수 있습니다.
         """)
 
     def render_instructions(self):
         st.subheader("💡 인스타그램 데이터 다운로드 및 이용 방법")
         
         st.markdown("#### 1단계: Instagram에 내 데이터 다운로드 요청하기")
+        
+        if os.path.exists("step1.jpg"):
+            st.image("step1.jpg", caption="1단계: 인스타그램 데이터 요청 화면", width=500)
+        else:
+            st.info("📷 (1단계 이미지 준비 중)")
+            
         st.markdown("""
         1. Instagram 앱에서 **메뉴(줄 3개)** ➔ **계정 센터** ➔ **내 정보 및 권한**으로 이동합니다.
         2. **내 정보 내보내기** ➔ **내보내기 만들기** ➔ **Instagram** ➔ **기기로 내보내기**를 순서대로 선택합니다.
@@ -98,28 +100,20 @@ class InstagramAppUI:
         
         3. **내보내기 시작**을 누릅니다.
         """)
-        
-        # [사진 크기 축소] width=500 옵션 추가
-        if os.path.exists("guide_instagram_request.jpg"):
-            st.image("guide_instagram_request.jpg", caption="1단계: 인스타그램 데이터 요청 화면", width=500)
-        elif os.path.exists("guide_instagram_request.jpeg"):
-            st.image("guide_instagram_request.jpeg", caption="1단계: 인스타그램 데이터 요청 화면", width=500)
-        else:
-            st.info("📷 (1단계 이미지 준비 중)")
 
         st.markdown("#### 2단계: 백업 파일 다운로드")
         st.markdown("* 요청 후 대략 10분에서 1시간 이내에 인스타그램으로부터 이메일 알림이 도착합니다. 이메일 본문의 링크를 클릭하여 .zip 파일을 다운로드해 주세요.")
         
-        if os.path.exists("guide_email_notification.png"):
-            st.image("guide_email_notification.png", caption="2단계: 이메일 알림 및 다운로드 화면", width=500)
+        if os.path.exists("step2.jpg"):
+            st.image("step2.jpg", caption="2단계: 이메일 알림 및 다운로드 화면", width=500)
         else:
             st.info("📷 (2단계 이미지 준비 중)")
 
         st.markdown("#### 3단계: 분석기에 파일 업로드하기")
         st.markdown("* 상단의 **ZIP 파일 업로드** 탭을 선택한 뒤, 다운로드한 .zip 파일을 **압축을 풀지 말고 파일 업로드 박스에 그대로** 끌어다 놓습니다.")
         
-        if os.path.exists("guide_file_upload.png"):
-            st.image("guide_file_upload.png", caption="3단계: 분석기 파일 업로드 화면", width=500)
+        if os.path.exists("step3.jpg"):
+            st.image("step3.jpg", caption="3단계: 분석기 파일 업로드 화면", width=500)
         else:
             st.info("📷 (3단계 이미지 준비 중)")
 
@@ -155,7 +149,7 @@ class InstagramAppUI:
             st.divider()
 
             deactivated_input = st.text_area(
-                "🚫 분석에서 제외할 계정 (비활성화 계정, 유명인, 브랜드 등) - 선택사항", 
+                "🚫 분석에서 제외할 계정 (비활성화 계정, 유명인, 브랜드 계정 등) - 선택사항", 
                 placeholder="쉼표 또는 줄바꿈으로 구분하여 입력해 주세요.\n예: gov_korea, k_yseok.07"
             )
 
@@ -175,7 +169,7 @@ class InstagramAppUI:
                 self.render_results(st.session_state['analysis_result'])
 
     def render_results(self, result: dict):
-        st.subheader("📊 데이터 요약")
+        st.subheader("📊 분석 결과")
         col_a, col_b, col_c = st.columns(3)
         col_a.metric("총 팔로워", f"{result['total_followers']}명")
         col_b.metric("데이터상 총 팔로잉", f"{result['total_following']}명")
@@ -183,13 +177,13 @@ class InstagramAppUI:
         
         st.warning("""
         **⚠️ 분석 결과 확인 전 주의사항**
-        * 상대방이 계정을 일시 비활성화, 삭제 또는 정지한 경우 실제 인스타그램 앱에 표시되는 수치와 다를 수 있습니다.
-        * 본 분석 결과는 추출된 백업 데이터를 기반으로 하므로 참고용으로 활용하시고, 정확한 내역은 인스타그램 앱에서 직접 교차 확인하시는 것을 권장합니다.
+        * 상대방이 계정을 일시 **비활성화**, **삭제** 또는 **정지**한 경우 실제 인스타그램 앱에 표시되는 수치와 다를 수 있습니다.
+        * 본 분석 결과는 참고용으로 활용하고 정확한 내역은 인스타그램 앱에서 **직접 교차 확인하시는 것을 권장**합니다.
         """)
         
         st.divider()
         st.subheader("👀 나를 맞팔하지 않는 계정 목록")
-        st.caption("사용자 이름을 클릭하면 해당 사용자의 인스타그램 프로필 페이지로 바로 이동합니다. 열 제목을 클릭하여 정렬 순서를 바꿀 수 있습니다.")
+        st.caption("사용자 이름을 클릭하여 해당 사용자의 프로필을 조회할 수 있습니다.\n열 제목을 클릭하여 정렬 순서를 바꿀 수 있습니다.")
         
         result_df = result['result_df']
         
@@ -221,16 +215,17 @@ class InstagramAppUI:
         st.subheader("Developer")
         
         st.markdown("""
-        **윤슥**
-        Contact: kyunseok@postech.ac.kr
+        **윤슥** ( kyunseok@postech.ac.kr )
 
         Other websites:
-        - Isntsta
-        - [Kakaodog](https://kakaodog.streamlit.app/)
+        - [Isntsta](https://isntsta.streamlit.app/)
+        - [Kakaotalk Analyzer](https://kakaodog.streamlit.app/)
+        - [Guit](https://guit,streamlit.app/)
         """)
         
         st.divider()
-        st.info("본 웹사이트는 사용자의 데이터를 외부 서버로 전송하거나 저장하지 않으며, 웹 브라우저의 로컬 메모리 내에서만 안전하게 동작합니다.")
+        st.info("""###데이터 보안 및 투명성 명시###
+        \n본 웹사이트는 사용자의 데이터를 외부 서버로 전송하거나 저장하지 않으며, 웹 브라우저의 로컬 메모리 내에서만 안전하게 동작합니다.""")
 
 if __name__ == "__main__":
     app = InstagramAppUI()
