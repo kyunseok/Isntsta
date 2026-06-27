@@ -27,21 +27,60 @@ class InstagramAppUI:
         st.session_state['data_loaded'] = False
 
     def run(self):
-        st.title("🕵️‍♂️ Isntsta")
+        # [테마 적용] 인스타그램 특유의 그라데이션 색상을 제목에 입히는 CSS
+        st.markdown("""
+        <style>
+        .insta-title {
+            background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 3rem;
+            margin-bottom: 0px;
+            padding-bottom: 0px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        st.markdown('<p class="insta-title">🕵️‍♂️ Isntsta</p>', unsafe_allow_html=True)
         st.write("나를 맞팔하지 않는 계정을 안전하고 빠르게 찾아보세요.")
         
-        # 3개의 탭 구성 (사용 방법, 파일 업로드, 개발자 소개)
-        tab1, tab2, tab3 = st.tabs(["📖 사용 방법", "📦 ZIP 파일 업로드", "🧑‍💻 About"])
+        # [탭 변경] 4개의 탭으로 구성 (About 추가, Developer 변경)
+        tab1, tab2, tab3, tab4 = st.tabs(["ℹ️ About", "📖 사용 방법", "📦 ZIP 파일 업로드", "🧑‍💻 Developer"])
 
         with tab1:
-            self.render_instructions()
+            self.render_about_app_section()
 
         with tab2:
+            self.render_instructions()
+
+        with tab3:
             self.render_upload_section()
             self.render_analysis_section()
             
-        with tab3:
-            self.render_about_section()
+        with tab4:
+            self.render_developer_section()
+
+    def render_about_app_section(self):
+        st.subheader("Isntsta란?")
+        st.markdown("""
+        **Isntsta**는 인스타그램에서 **나를 팔로우하지 않는 사람(언팔로워)**을 가장 안전하고 빠르게 찾을 수 있는 웹 서비스입니다. 
+        """)
+        
+        st.divider()
+        
+        st.markdown("""
+        #### ✨ 왜 Isntsta를 써야 할까요?
+        
+        * 🔒 **완벽한 개인정보 보호 (No Server Storage)**
+          여러분의 데이터를 외부 서버로 절대 전송하거나 저장하지 않습니다. 모든 분석은 현재 켜져 있는 **웹 브라우저(내 컴퓨터/스마트폰) 안에서만** 이루어지며, 창을 닫는 즉시 데이터는 모두 증발합니다.
+          
+        * 🛡️ **계정 정지 및 해킹 위험 제로 (100% Safe)**
+          시중의 언팔로우 확인 앱들은 인스타그램 아이디와 비밀번호를 요구하거나 불법 봇(Bot)을 이용하기 때문에 계정이 해킹당하거나 정지(섀도우 밴)될 위험이 매우 높습니다. **Isntsta는 인스타그램 공식 백업 데이터만 활용하므로 계정에 아무런 영향을 주지 않습니다.**
+          
+        * ⚡ **빠르고 직관적인 분석**
+          귀찮은 프로그램 설치나 회원가입이 필요 없습니다. 다운로드한 `.zip` 파일을 화면에 던져 넣기만 하면 즉시 분석 결과를 확인할 수 있습니다.
+        """)
 
     def render_instructions(self):
         st.subheader("💡 인스타그램 데이터 다운로드 및 이용 방법")
@@ -59,16 +98,30 @@ class InstagramAppUI:
         
         3. **내보내기 시작**을 누릅니다.
         """)
-        # 통일된 규칙의 명확한 이미지 파일 이름으로 수정
-        st.image("instagramFileDownload.jpeg", caption="1단계: 인스타그램 데이터 요청 화면")
+        
+        # [사진 크기 축소] width=500 옵션 추가
+        if os.path.exists("guide_instagram_request.jpg"):
+            st.image("guide_instagram_request.jpg", caption="1단계: 인스타그램 데이터 요청 화면", width=500)
+        elif os.path.exists("guide_instagram_request.jpeg"):
+            st.image("guide_instagram_request.jpeg", caption="1단계: 인스타그램 데이터 요청 화면", width=500)
+        else:
+            st.info("📷 (1단계 이미지 준비 중)")
 
         st.markdown("#### 2단계: 백업 파일 다운로드")
         st.markdown("* 요청 후 대략 10분에서 1시간 이내에 인스타그램으로부터 이메일 알림이 도착합니다. 이메일 본문의 링크를 클릭하여 .zip 파일을 다운로드해 주세요.")
-        st.image("instagramGmail.png", caption="2단계: 이메일 알림 및 다운로드 화면")
+        
+        if os.path.exists("guide_email_notification.png"):
+            st.image("guide_email_notification.png", caption="2단계: 이메일 알림 및 다운로드 화면", width=500)
+        else:
+            st.info("📷 (2단계 이미지 준비 중)")
 
         st.markdown("#### 3단계: 분석기에 파일 업로드하기")
         st.markdown("* 상단의 **ZIP 파일 업로드** 탭을 선택한 뒤, 다운로드한 .zip 파일을 **압축을 풀지 말고 파일 업로드 박스에 그대로** 끌어다 놓습니다.")
-        st.image("instagramGmail.png", caption="3단계: 분석기 파일 업로드 화면")
+        
+        if os.path.exists("guide_file_upload.png"):
+            st.image("guide_file_upload.png", caption="3단계: 분석기 파일 업로드 화면", width=500)
+        else:
+            st.info("📷 (3단계 이미지 준비 중)")
 
         st.markdown("#### 4단계: 맞팔 분석 시작")
         st.markdown("* 파일이 정상적으로 올라가면 하단에 생성되는 **맞팔 분석 시작** 버튼을 클릭하여 결과를 확인합니다.")
@@ -164,7 +217,7 @@ class InstagramAppUI:
             st.balloons()
             st.success("모든 팔로잉 사용자가 회원님을 맞팔하고 있습니다! 🎉")
 
-    def render_about_section(self):
+    def render_developer_section(self):
         st.subheader("Developer")
         
         st.markdown("""
@@ -173,7 +226,7 @@ class InstagramAppUI:
 
         Other websites:
         - Isntsta
-        - KAnalyzer
+        - [Kakaodog](https://kakaodog.streamlit.app/)
         """)
         
         st.divider()
