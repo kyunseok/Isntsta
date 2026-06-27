@@ -25,8 +25,10 @@ class InstagramAppUI:
         st.session_state['data_loaded'] = False
 
     def run(self):
+        # [CSS 테마 추가] 인스타그램 색감 적용 및 본문 글자색 변경
         st.markdown("""
         <style>
+        /* 1. 타이틀 그라데이션 */
         .insta-title {
             background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             -webkit-background-clip: text;
@@ -35,6 +37,22 @@ class InstagramAppUI:
             font-size: 3rem;
             margin-bottom: 0px;
             padding-bottom: 0px;
+        }
+        
+        /* 2. 본문 기본 텍스트 색상 (검은색과 구분되는 다크 마젠타/딥 퍼플) */
+        p, li, .st-emotion-cache-16idsys p {
+            color: #5c164e !important; 
+        }
+        
+        /* 3. 강조(Bold) 텍스트 색상 (인스타그램 오렌지/핑크) */
+        strong {
+            color: #e1306c !important; 
+        }
+        
+        /* 4. 소제목(Subheader) 색상 (인스타그램 퍼플) */
+        h3, h4 {
+            color: #833ab4 !important;
+            font-weight: 700 !important;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -83,8 +101,9 @@ class InstagramAppUI:
         
         st.markdown("#### 1단계: Instagram에 내 데이터 다운로드 요청하기")
         
+        # [사진 크기 축소] width 500 -> 250으로 변경하여 높이 대폭 축소
         if os.path.exists("step1.jpg"):
-            st.image("step1.jpg", caption="1단계: 인스타그램 데이터 요청 화면", width=500)
+            st.image("step1.jpg", caption="1단계: 인스타그램 데이터 요청 화면", width=250)
         else:
             st.info("📷 (1단계 이미지 준비 중)")
             
@@ -104,16 +123,18 @@ class InstagramAppUI:
         st.markdown("#### 2단계: 백업 파일 다운로드")
         st.markdown("* 요청 후 대략 10분에서 1시간 이내에 인스타그램으로부터 이메일 알림이 도착합니다. 이메일 본문의 링크를 클릭하여 .zip 파일을 다운로드해 주세요.")
         
+        # [사진 크기 축소]
         if os.path.exists("step2.jpg"):
-            st.image("step2.jpg", caption="2단계: 이메일 알림 및 다운로드 화면", width=500)
+            st.image("step2.jpg", caption="2단계: 이메일 알림 및 다운로드 화면", width=250)
         else:
             st.info("📷 (2단계 이미지 준비 중)")
 
         st.markdown("#### 3단계: 분석기에 파일 업로드하기")
         st.markdown("* 상단의 **ZIP 파일 업로드** 탭을 선택한 뒤, 다운로드한 .zip 파일을 **압축을 풀지 말고 파일 업로드 박스에 그대로** 끌어다 놓습니다.")
         
+        # [사진 크기 축소]
         if os.path.exists("step3.jpg"):
-            st.image("step3.jpg", caption="3단계: 분석기 파일 업로드 화면", width=500)
+            st.image("step3.jpg", caption="3단계: 분석기 파일 업로드 화면", width=250)
         else:
             st.info("📷 (3단계 이미지 준비 중)")
 
@@ -220,11 +241,11 @@ class InstagramAppUI:
         Other websites:
         - [Isntsta](https://isntsta.streamlit.app/)
         - [Kakaotalk Analyzer](https://kakaodog.streamlit.app/)
-        - [Guit](https://guit,streamlit.app/)
+        - [Guit](https://guit.streamlit.app/)
         """)
         
         st.divider()
-        st.info("""###데이터 보안 및 투명성 명시###
+        st.info("""### 데이터 보안 및 투명성 명시 ###
         \n본 웹사이트는 사용자의 데이터를 외부 서버로 전송하거나 저장하지 않으며, 웹 브라우저의 로컬 메모리 내에서만 안전하게 동작합니다.""")
 
 if __name__ == "__main__":
