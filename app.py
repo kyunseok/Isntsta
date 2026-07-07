@@ -44,7 +44,6 @@ class InstagramAppUI:
     def run(self):
         logo_b64 = get_base64_image("logo.png")
         if logo_b64:
-            # 로고 크기는 4.5rem 유지
             logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="height: 4.5rem; margin-right: 20px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">'
         else:
             logo_html = '<span style="font-size: 4.5rem; margin-right: 20px;">🕵️‍♂️</span>'
@@ -61,7 +60,7 @@ class InstagramAppUI:
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900 !important;
-            font-size: 4.5rem !important; /* 글씨 크기만 6rem에서 4.5rem으로 낮춤 */
+            font-size: 4.5rem !important;
             margin-bottom: 0px !important;
             padding-bottom: 0px !important;
             line-height: 1.1 !important;
@@ -74,7 +73,6 @@ class InstagramAppUI:
             text-align: center;
             margin-bottom: 15px;
         }}
-        /* 중앙 버튼 스타일 개선 */
         .stButton>button {{
             height: 100%;
             font-size: 1.5rem;
@@ -148,10 +146,11 @@ class InstagramAppUI:
 
         st.write("")
 
+        # [수정] 양옆 여백 비율을 늘리고 이미지 공간을 줄였습니다 (기존 1:5:1 -> 1:2:1)
         try:
-            col_l, col_img, col_r = st.columns([1, 5, 1], vertical_alignment="center")
+            col_l, col_img, col_r = st.columns([1, 2, 1], vertical_alignment="center")
         except TypeError:
-            col_l, col_img, col_r = st.columns([1, 5, 1])
+            col_l, col_img, col_r = st.columns([1, 2, 1])
 
         with col_l:
             if step > 1:
