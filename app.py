@@ -104,7 +104,7 @@ class InstagramAppUI:
     def render_about_app_section(self):
         st.subheader("Isntsta란?")
         st.markdown("""
-        **Isntsta**는 귀찮은 회원가입이나 결제 없이도 인스타그램에서 **나를 팔로우하지 않는 사람(언팔로워)**을 가장 안전하고 빠르게 찾을 수 있는 웹사이트 서비스입니다. 
+        **Isntsta**는 귀찮은 회원가입이나 결제 없이도 Instagram에서 **나를 팔로우하지 않는 사람(언팔로워)**을 가장 안전하고 빠르게 찾을 수 있는 웹사이트 서비스입니다. 
         """)
         
         st.divider()
@@ -116,19 +116,19 @@ class InstagramAppUI:
             모든 분석은 현재 켜져 있는 웹사이트(내 컴퓨터/스마트폰) 안에서만 이루어집니다. \n
             따라서 창을 닫는 즉시 여러분의 데이터는 모두 삭제되기 때문에 개인정보 유출 위험은 없습니다.
 
-        #### 2. 계정 밴(Ban)의 위험은 없나요?\n
-            시중의 언팔로우 확인 앱들은 인스타그램 아이디와 비밀번호를 요구하거나
+        #### 2. 계정이 밴(Ban) 당할 위험은 없나요?\n
+            시중의 언팔로우 확인 앱들은 Instagram 아이디와 비밀번호를 요구하거나
             불법 봇(Bot)을 이용하기 때문에 계정이 해킹당하거나 정지(섀도우 밴)될 위험이 매우 높습니다.\n
-            그러나 Isntsta는 인스타그램 공식 백업 데이터만 활용하므로 계정에 아무런 영향을 주지 않습니다.
+            그러나 Isntsta는 Instagram 공식 백업 데이터만 활용하므로 계정에 아무런 영향을 주지 않습니다.
           
         #### 3. 언팔로워 중에서 대형 크리에이터 등을 걸러낼 수 있는 기능은 없나요?\n
             데이터 분석, 크롤링, API 등의 방법을 고안해봤으나 이들 모두 기술적으로 구현 불가능하거나
-            Instagram 규정 위반이기 때문에 해당 기능은 기술적으로 만들기 어렵습니다.\n
+            Instagram 규정 위반이기 때문에 구현하더라도 실질적으로 적용하기 어렵습니다.\n
             혹시 앞선 방법 말고 구현 가능한 분이 계시다면 저에게 연락해주세요.
         """)
 
     def render_instructions(self):
-        st.subheader("💡 인스타그램 데이터 다운로드 및 이용 방법")
+        st.subheader("💡 Instagram 데이터 다운로드 및 이용 방법")
         
         step = st.session_state['instruction_step']
         total_steps = 4
@@ -145,8 +145,6 @@ class InstagramAppUI:
             st.markdown('<h4 class="insta-subtitle">4단계: 맞팔 분석 시작</h4>', unsafe_allow_html=True)
 
         st.write("")
-
-        # [수정] 양옆 여백 비율을 늘리고 이미지 공간을 줄였습니다 (기존 1:5:1 -> 1:2:1)
         try:
             col_l, col_img, col_r = st.columns([1, 2, 1], vertical_alignment="center")
         except TypeError:
@@ -177,32 +175,32 @@ class InstagramAppUI:
 
         if step == 1:
             st.markdown("""
-            <div style="color: #C13584; font-size: 1rem;">
+            <div style="color: #000000; font-size: 1rem;">
                 <ol>
-                    <li>Instagram 앱에서 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">메뉴(줄 3개)</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">계정 센터</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내 정보 및 권한</strong>으로 이동합니다.</li>
-                    <li><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내 정보 내보내기</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내보내기 만들기</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">Instagram</strong> ➔ <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">기기로 내보내기</strong>를 순서대로 선택합니다.</li>
+                    <li>Instagram 앱에서 <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">메뉴(줄 3개)</strong> ➔ <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">계정 센터</strong> ➔ <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내 정보 및 권한</strong>으로 이동합니다.</li>
+                    <li><strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내 정보 내보내기</strong> ➔ <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내보내기 만들기</strong> ➔ <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">Instagram</strong> ➔ <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">기기로 내보내기</strong>를 순서대로 선택합니다.</li>
                 </ol>
                 <hr style="margin: 10px 0px; border-color: #f0f2f6;">
-                <p style="margin-bottom: 5px;"><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">🚨 중요 설정 안내</strong></p>
+                <p style="margin-bottom: 5px;"><strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">🚨 중요 설정</strong></p>
                 <ul>
-                    <li><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">정보 맞춤 설정</strong> 단계에서 반드시 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">팔로워 및 팔로잉</strong> 정보가 체크되어 있어야 합니다.</li>
-                    <li><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">기간</strong> 설정 시 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">전체 기간</strong>을 선택하셔야 누락 없는 정확한 분석이 가능합니다.</li>
+                    <li><strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">정보 맞춤 설정</strong> 단계에서 반드시 <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">팔로워 및 팔로잉</strong> 정보가 체크되어 있어야 합니다.</li>
+                    <li><strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">기간</strong> 설정 시 <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">전체 기간</strong>을 선택해야 누락 없는 정확한 분석이 가능합니다.</li>
                 </ul>
                 <hr style="margin: 10px 0px; border-color: #f0f2f6;">
                 <ol start="3">
-                    <li><strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내보내기 시작</strong>을 누릅니다.</li>
+                    <li><strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">내보내기 시작</strong>을 누릅니다.</li>
                 </ol>
             </div>
             """, unsafe_allow_html=True)
 
         elif step == 2:
-            st.markdown('<ul style="color: #C13584;"><li>요청 후 대략 10분에서 1시간 이내에 인스타그램으로부터 이메일 알림이 도착합니다. 이메일 본문의 링크를 클릭하여 .zip 파일을 다운로드해 주세요.</li></ul>', unsafe_allow_html=True)
+            st.markdown('<ul style="color: #000000;"><li>요청 후 대략 10분에서 1시간 이내에 Instagram으로부터 이메일 알림이 도착합니다. 이메일 본문의 링크를 클릭하여 .zip 파일을 다운로드해 주세요.</li></ul>', unsafe_allow_html=True)
 
         elif step == 3:
-            st.markdown('<ul style="color: #C13584;"><li>상단의 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">ZIP 파일 업로드</strong> 탭을 선택한 뒤, 다운로드한 .zip 파일을 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">압축을 풀지 말고 파일 업로드 박스에 그대로</strong> 끌어다 놓습니다.</li></ul>', unsafe_allow_html=True)
+            st.markdown('<ul style="color: #000000;"><li>상단의 <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">ZIP 파일 업로드</strong> 탭을 선택한 뒤, 다운로드한 .zip 파일을 <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">압축을 풀지 말고 파일 업로드 박스에 그대로</strong> 끌어다 놓습니다.</li></ul>', unsafe_allow_html=True)
 
         elif step == 4:
-            st.markdown('<ul style="color: #C13584;"><li>파일이 정상적으로 올라가면 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">📦 ZIP 파일 업로드</strong> 탭으로 이동하여 하단에 생성된 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">맞팔 분석 시작</strong> 버튼을 클릭하고 결과를 확인합니다.</li></ul>', unsafe_allow_html=True)
+            st.markdown('<ul style="color: #000000;"><li>파일이 정상적으로 올라가면 <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">📦 ZIP 파일 업로드</strong> 탭으로 이동하여 하단에 생성된 <strong style="color: #007BFF; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">맞팔 분석 시작</strong> 버튼을 클릭하고 결과를 확인합니다.</li></ul>', unsafe_allow_html=True)
 
     def render_upload_section(self):
         st.info("💡 다운로드한 .zip 파일을 압축 해제하지 말고 그대로 업로드해 주세요. (HTML 및 JSON 형식 모두 지원)")
@@ -261,8 +259,8 @@ class InstagramAppUI:
         
         st.warning("""
         **⚠️ 분석 결과 확인 전 주의사항**
-        * 상대방이 계정을 일시 **비활성화**, **삭제** 또는 **정지**한 경우 실제 인스타그램 앱에 표시되는 수치와 다를 수 있습니다.
-        * 본 분석 결과는 참고용으로 활용하고 정확한 내역은 인스타그램 앱에서 **직접 교차 확인하시는 것을 권장**합니다.
+        * 상대방이 계정을 일시 **비활성화**, **삭제** 또는 **정지**한 경우 실제 Instagram 앱에 표시되는 수치와 다를 수 있습니다.
+        * 본 분석 결과는 참고용으로 활용하고 실제 팔로우 여부는 Instagram 앱에서 직접 교차 검증하시는 것을 권장합니다.
         """)
         
         st.divider()
