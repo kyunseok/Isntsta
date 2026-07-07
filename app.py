@@ -307,9 +307,11 @@ class InstagramAppUI:
         """)
         
         st.divider()
-        st.info("""##### 데이터 보안 및 투명성 명시 #####\n
-        - 본 웹사이트는 사용자의 데이터를 외부 서버로 전송하거나 저장하지 않으며, 웹사이트의 로컬 메모리 내에서만 안전하게 동작합니다.\n
-        - 본 서비스는 Meta Platforms, Inc. 또는 Instagram과 어떠한 공식적인 제휴나 관련이 없음을 알립니다.""")
+        st.info("""##### 🔐 #####\n
+            본 웹사이트는 사용자의 데이터를 외부 서버로 전송하거나 저장하지 않으며, 
+            사이트의 로컬 메모리 내에서만 안전하게 동작합니다.\n
+            본 서비스는 Meta Platforms, Inc. 또는 Instagram과 어떠한 공식적인 제휴나
+            관련이 없음을 알립니다.""")
 
 if __name__ == "__main__":
     app = InstagramAppUI()
