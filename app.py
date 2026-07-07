@@ -44,9 +44,9 @@ class InstagramAppUI:
     def run(self):
         logo_b64 = get_base64_image("logo.png")
         if logo_b64:
-            logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="height: 4.5rem; margin-right: 15px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">'
+            logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="height: 6rem; margin-right: 15px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">'
         else:
-            logo_html = '<span style="font-size: 4.5rem; margin-right: 15px;">🕵️‍♂️</span>'
+            logo_html = '<span style="font-size: 6rem; margin-right: 15px;">🕵️‍♂️</span>'
 
         st.markdown(f"""
         <style>
@@ -60,12 +60,11 @@ class InstagramAppUI:
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900;
-            font-size: 4.5rem;
+            font-size: 6rem; /* 글씨 크기를 4.5rem에서 6rem으로 대폭 확대 */
             margin-bottom: 0px;
             padding-bottom: 0px;
             line-height: 1.2;
         }}
-        /* [추가] 소제목용 그라데이션 CSS 클래스 */
         .insta-subtitle {{
             background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             -webkit-background-clip: text;
@@ -148,7 +147,10 @@ class InstagramAppUI:
 
         st.write("")
 
-        col_l, col_img, col_r = st.columns([1, 5, 1], vertical_alignment="center")
+        try:
+            col_l, col_img, col_r = st.columns([1, 5, 1], vertical_alignment="center")
+        except TypeError:
+            col_l, col_img, col_r = st.columns([1, 5, 1])
 
         with col_l:
             if step > 1:
