@@ -47,7 +47,7 @@ class InstagramAppUI:
             # 로고 크기는 제목과 어울리도록 4.5rem 수준으로 고정
             logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="height: 4.5rem; margin-right: 20px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">'
         else:
-            logo_html = '<span style="font-size: 4.5rem; margin-right: 20px;">🕵️‍♂️</span>'
+            logo_html = '<span style="font-size: 4.5rem; margin-right: 12px;">🕵️‍♂️</span>'
 
         st.markdown(f"""
         <style>
