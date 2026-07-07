@@ -65,6 +65,11 @@ class InstagramAppUI:
             padding-bottom: 0px;
             line-height: 1.2;
         }}
+        /* 중앙 버튼 스타일 개선 */
+        .stButton>button {{
+            height: 100%;
+            font-size: 1.5rem;
+        }}
         </style>
         <div class="title-container">
             {logo_html}
@@ -116,40 +121,53 @@ class InstagramAppUI:
         step = st.session_state['instruction_step']
         total_steps = 4
 
-        # 각 단계별 제목 설정
-        titles = [
-            "1단계: Instagram에 내 데이터 다운로드 요청하기",
-            "2단계: 백업 파일 다운로드",
-            "3단계: 분석기에 파일 업로드하기",
-            "4단계: 맞팔 분석 시작"
-        ]
+        st.markdown(f"<div style='text-align: center; color: #833ab4; font-weight: bold; margin-bottom: 10px;'>{step} / {total_steps} 단계</div>", unsafe_allow_html=True)
 
-        # 1. 단계 제목 렌더링
-        st.markdown(f'<h4 style="color: #E1306C; font-weight: bold;">{titles[step-1]}</h4>', unsafe_allow_html=True)
+        # 1. 단계별 제목 렌더링
+        if step == 1:
+            st.markdown('<h4 style="color: #E1306C; font-weight: bold; text-align: center;">1단계: Instagram에 내 데이터 다운로드 요청하기</h4>', unsafe_allow_html=True)
+        elif step == 2:
+            st.markdown('<h4 style="color: #E1306C; font-weight: bold; text-align: center;">2단계: 백업 파일 다운로드</h4>', unsafe_allow_html=True)
+        elif step == 3:
+            st.markdown('<h4 style="color: #E1306C; font-weight: bold; text-align: center;">3단계: 분석기에 파일 업로드하기</h4>', unsafe_allow_html=True)
+        elif step == 4:
+            st.markdown('<h4 style="color: #E1306C; font-weight: bold; text-align: center;">4단계: 맞팔 분석 시작</h4>', unsafe_allow_html=True)
 
-        # 2. [변경점] 네비게이션 버튼을 컨텐츠 상단(제목 바로 아래)으로 이동
-        col1, col2, col3 = st.columns([1, 2, 1])
-        
-        with col1:
+        st.write("") # 간격 띄우기
+
+        # 2. 이미지 및 좌우 네비게이션 버튼 렌더링 (갤러리 레이아웃)
+        try:
+            # Streamlit 최신 버전 기능: vertical_alignment로 버튼을 이미지 정중앙 높이에 맞춥니다.
+            col_l, col_img, col_r = st.columns([1, 5, 1], vertical_alignment="center")
+        except TypeError:
+            # 구버전 호환용
+            col_l, col_img, col_r = st.columns([1, 5, 1])
+
+        with col_l:
             if step > 1:
-                st.button("⬅️ 이전", on_click=self.prev_step, use_container_width=True)
-                
-        with col2:
-            st.markdown(f"<div style='text-align: center; color: #833ab4; font-weight: bold; margin-top: 10px;'>{step} / {total_steps} 단계</div>", unsafe_allow_html=True)
-            
-        with col3:
+                st.button("◀", key="prev_btn", on_click=self.prev_step, use_container_width=True)
+
+        with col_img:
+            if step == 1:
+                if os.path.exists("step1.jpg"): st.image("step1.jpg", use_container_width=True)
+                else: st.info("📷 (1단계 이미지 준비 중)")
+            elif step == 2:
+                if os.path.exists("step2.jpg"): st.image("step2.jpg", use_container_width=True)
+                else: st.info("📷 (2단계 이미지 준비 중)")
+            elif step == 3:
+                if os.path.exists("step3.jpg"): st.image("step3.jpg", use_container_width=True)
+                else: st.info("📷 (3단계 이미지 준비 중)")
+            elif step == 4:
+                st.markdown("<h1 style='text-align: center; font-size: 5rem; margin: 20px 0;'>🎉</h1>", unsafe_allow_html=True)
+
+        with col_r:
             if step < total_steps:
-                st.button("다음 ➡️", on_click=self.next_step, use_container_width=True)
+                st.button("▶", key="next_btn", on_click=self.next_step, use_container_width=True)
 
         st.divider()
 
-        # 3. 단계별 본문 컨텐츠 렌더링
+        # 3. 단계별 텍스트 설명 렌더링
         if step == 1:
-            if os.path.exists("step1.jpg"):
-                st.image("step1.jpg", caption="1단계: 인스타그램 데이터 요청 화면", width=250)
-            else:
-                st.info("📷 (1단계 이미지 준비 중)")
-                
             st.markdown("""
             <div style="color: #C13584; font-size: 1rem;">
                 <ol>
@@ -171,21 +189,12 @@ class InstagramAppUI:
 
         elif step == 2:
             st.markdown('<ul style="color: #C13584;"><li>요청 후 대략 10분에서 1시간 이내에 인스타그램으로부터 이메일 알림이 도착합니다. 이메일 본문의 링크를 클릭하여 .zip 파일을 다운로드해 주세요.</li></ul>', unsafe_allow_html=True)
-            if os.path.exists("step2.jpg"):
-                st.image("step2.jpg", caption="2단계: 이메일 알림 및 다운로드 화면", width=250)
-            else:
-                st.info("📷 (2단계 이미지 준비 중)")
 
         elif step == 3:
             st.markdown('<ul style="color: #C13584;"><li>상단의 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">ZIP 파일 업로드</strong> 탭을 선택한 뒤, 다운로드한 .zip 파일을 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">압축을 풀지 말고 파일 업로드 박스에 그대로</strong> 끌어다 놓습니다.</li></ul>', unsafe_allow_html=True)
-            if os.path.exists("step3.jpg"):
-                st.image("step3.jpg", caption="3단계: 분석기 파일 업로드 화면", width=250)
-            else:
-                st.info("📷 (3단계 이미지 준비 중)")
 
         elif step == 4:
             st.markdown('<ul style="color: #C13584;"><li>파일이 정상적으로 올라가면 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">📦 ZIP 파일 업로드</strong> 탭으로 이동하여 하단에 생성된 <strong style="color: #FCAF45; text-shadow: 0px 0px 1px rgba(0,0,0,0.2);">맞팔 분석 시작</strong> 버튼을 클릭하고 결과를 확인합니다.</li></ul>', unsafe_allow_html=True)
-
 
     def render_upload_section(self):
         st.info("💡 다운로드한 .zip 파일을 압축 해제하지 말고 그대로 업로드해 주세요. (HTML 및 JSON 형식 모두 지원)")
