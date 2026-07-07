@@ -65,6 +65,15 @@ class InstagramAppUI:
             padding-bottom: 0px;
             line-height: 1.2;
         }}
+        /* [추가] 소제목용 그라데이션 CSS 클래스 */
+        .insta-subtitle {{
+            background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }}
         /* 중앙 버튼 스타일 개선 */
         .stButton>button {{
             height: 100%;
@@ -103,18 +112,18 @@ class InstagramAppUI:
         st.divider()
         
         st.markdown("""
-        #### QnA
-        1. 제 개인정보 유출 위험은 없나요?
+        ### QnA
+        #### 1. 제 개인정보 유출 위험은 없나요?\n
             이 웹사이트는 외부 DB와 연결되어 있지 않으며, 모든 분석은 현재 켜져 있는 웹사이트(내 컴퓨터/스마트폰) 안에서만 이루어집니다.
             따라서 창을 닫는 즉시 여러분의 데이터는 모두 삭제되기 때문에 개인정보 유출 위험은 없습니다.
 
-        2. 계정 밴(Ban)의 위험은 없나요?
+        #### 2. 계정 밴(Ban)의 위험은 없나요?\n
             시중의 언팔로우 확인 앱들은 인스타그램 아이디와 비밀번호를 요구하거나 불법 봇(Bot)을 이용하기 때문에 계정이 해킹당하거나 정지(섀도우 밴)될 위험이 매우 높습니다.
             그러나 Isntsta는 인스타그램 공식 백업 데이터만 활용하므로 계정에 아무런 영향을 주지 않습니다.
           
-        3. 언팔로워 중에서 대형 크리에이터 등을 걸러낼 수 있는 기능은 없나요?
+        #### 3. 언팔로워 중에서 대형 크리에이터 등을 걸러낼 수 있는 기능은 없나요?\n
             데이터 분석, 크롤링, API 등의 방법을 고안해봤으나 이들 모두 불가능하거나 규정 위반이기 때문에 해당 기능은 기술적으로 만들기 어렵습니다.
-            앞선 방법 말고 구현 가능한 분이 계시다면 저에게 연락해주세요.
+            혹시 앞선 방법 말고 구현 가능한 분이 계시다면 저에게 연락해주세요.
         """)
 
     def render_instructions(self):
@@ -125,25 +134,18 @@ class InstagramAppUI:
 
         st.markdown(f"<div style='text-align: center; color: #833ab4; font-weight: bold; margin-bottom: 10px;'>{step} / {total_steps} 단계</div>", unsafe_allow_html=True)
 
-        # 1. 단계별 제목 렌더링
         if step == 1:
-            st.markdown('<h4 style="color: #E1306C; font-weight: bold; text-align: center;">1단계: Instagram에 내 데이터 다운로드 요청하기</h4>', unsafe_allow_html=True)
+            st.markdown('<h4 class="insta-subtitle">1단계: Instagram에 내 데이터 다운로드 요청하기</h4>', unsafe_allow_html=True)
         elif step == 2:
-            st.markdown('<h4 style="color: #E1306C; font-weight: bold; text-align: center;">2단계: 백업 파일 다운로드</h4>', unsafe_allow_html=True)
+            st.markdown('<h4 class="insta-subtitle">2단계: 백업 파일 다운로드</h4>', unsafe_allow_html=True)
         elif step == 3:
-            st.markdown('<h4 style="color: #E1306C; font-weight: bold; text-align: center;">3단계: 분석기에 파일 업로드하기</h4>', unsafe_allow_html=True)
+            st.markdown('<h4 class="insta-subtitle">3단계: 분석기에 파일 업로드하기</h4>', unsafe_allow_html=True)
         elif step == 4:
-            st.markdown('<h4 style="color: #E1306C; font-weight: bold; text-align: center;">4단계: 맞팔 분석 시작</h4>', unsafe_allow_html=True)
+            st.markdown('<h4 class="insta-subtitle">4단계: 맞팔 분석 시작</h4>', unsafe_allow_html=True)
 
-        st.write("") # 간격 띄우기
+        st.write("")
 
-        # 2. 이미지 및 좌우 네비게이션 버튼 렌더링 (갤러리 레이아웃)
-        try:
-            # Streamlit 최신 버전 기능: vertical_alignment로 버튼을 이미지 정중앙 높이에 맞춥니다.
-            col_l, col_img, col_r = st.columns([1, 5, 1], vertical_alignment="center")
-        except TypeError:
-            # 구버전 호환용
-            col_l, col_img, col_r = st.columns([1, 5, 1])
+        col_l, col_img, col_r = st.columns([1, 5, 1], vertical_alignment="center")
 
         with col_l:
             if step > 1:
@@ -168,7 +170,6 @@ class InstagramAppUI:
 
         st.divider()
 
-        # 3. 단계별 텍스트 설명 렌더링
         if step == 1:
             st.markdown("""
             <div style="color: #C13584; font-size: 1rem;">
