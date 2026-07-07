@@ -7,7 +7,6 @@ import base64
 from dataParser import InstagramDataParser
 from analyzer import InstagramAnalyzer
 
-# [추가] 로고 이미지를 HTML에 깔끔하게 넣기 위해 Base64로 변환하는 함수
 def get_base64_image(image_path):
     if os.path.exists(image_path):
         with open(image_path, "rb") as img_file:
@@ -33,14 +32,12 @@ class InstagramAppUI:
         st.session_state['data_loaded'] = False
 
     def run(self):
-        # 로고 파일(logo.png)이 있으면 불러오고, 없으면 기본 이모지 사용
         logo_b64 = get_base64_image("logo.png")
         if logo_b64:
             logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="height: 4.5rem; margin-right: 15px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">'
         else:
             logo_html = '<span style="font-size: 4.5rem; margin-right: 15px;">🕵️‍♂️</span>'
 
-        # [CSS 테마] 제목 폰트 크기 확대 (3rem -> 4.5rem) 및 로고 정렬
         st.markdown(f"""
         <style>
         .title-container {{
@@ -85,21 +82,21 @@ class InstagramAppUI:
     def render_about_app_section(self):
         st.subheader("Isntsta란?")
         st.markdown("""
-        **Isntsta**는 인스타그램에서 **나를 팔로우하지 않는 사람(언팔로워)**을 가장 안전하고 빠르게 찾을 수 있는 웹 서비스입니다. 
+        **Isntsta**는 인스타그램에서 **나를 팔로우하지 않는 사람(언팔로워)**을 가장 안전하고 빠르게 찾을 수 있는 웹사이트입니다. 
         """)
         
         st.divider()
         
         st.markdown("""
-        #### ✨ 왜 Isntsta를 써야 할까요?
+        #### 왜 Isntsta를 써야 할까요?
         
-        * 🔒 **완벽한 개인정보 보호**
-          사용자의 데이터를 외부 서버로 절대 전송하거나 저장하지 않습니다. 모든 분석은 현재 켜져 있는 **웹 브라우저(내 컴퓨터/스마트폰) 안에서만** 이루어지며, 창을 닫는 즉시 데이터는 모두 삭제됩니다.
+        * **완벽한 개인정보 보호**
+            사용자 데이터는 외부 DB와 연결되어 있지 않으며, 모든 분석은 현재 켜져 있는 웹사이트(내 컴퓨터/스마트폰) 안에서만 이루어집니다. 따라서 창을 닫는 즉시 데이터는 모두 삭제됩니다.
           
-        * 🛡️ **합법적이고 안전한 방법**
+        * **합법적이고 안전한 방법**
           시중의 언팔로우 확인 앱들은 인스타그램 아이디와 비밀번호를 요구하거나 불법 봇(Bot)을 이용하기 때문에 계정이 해킹당하거나 정지(섀도우 밴)될 위험이 매우 높습니다. **Isntsta는 인스타그램 공식 백업 데이터만 활용하므로 계정에 아무런 영향을 주지 않습니다.**
           
-        * ⚡ **빠르고 직관적인 분석**
+        * **빠르고 직관적인 분석**
           귀찮은 프로그램 설치나 광고, 회원가입, 결제가 필요하지 않습니다. 다운로드한 파일을 통해 즉시 결과를 확인할 수 있습니다.
         """)
 
@@ -113,7 +110,6 @@ class InstagramAppUI:
         else:
             st.info("📷 (1단계 이미지 준비 중)")
             
-        # [수정] 굵은 글씨(strong)들을 인스타그램 노란색(#FCAF45)으로 변경
         st.markdown("""
         <div style="color: #C13584; font-size: 1rem;">
             <ol>
@@ -257,7 +253,7 @@ class InstagramAppUI:
         
         st.divider()
         st.info("""### 데이터 보안 및 투명성 명시 ###
-        \n본 웹사이트는 사용자의 데이터를 외부 서버로 전송하거나 저장하지 않으며, 웹 브라우저의 로컬 메모리 내에서만 안전하게 동작합니다.""")
+        \n본 웹사이트는 사용자의 데이터를 외부 서버로 전송하거나 저장하지 않으며, 웹사이트의 로컬 메모리 내에서만 안전하게 동작합니다.""")
 
 if __name__ == "__main__":
     app = InstagramAppUI()
