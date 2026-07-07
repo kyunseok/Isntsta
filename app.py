@@ -44,26 +44,28 @@ class InstagramAppUI:
     def run(self):
         logo_b64 = get_base64_image("logo.png")
         if logo_b64:
-            logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="height: 6rem; margin-right: 15px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">'
+            # 로고 크기는 제목과 어울리도록 4.5rem 수준으로 고정
+            logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="height: 4.5rem; margin-right: 20px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">'
         else:
-            logo_html = '<span style="font-size: 6rem; margin-right: 15px;">🕵️‍♂️</span>'
+            logo_html = '<span style="font-size: 4.5rem; margin-right: 20px;">🕵️‍♂️</span>'
 
         st.markdown(f"""
         <style>
         .title-container {{
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }}
         .insta-title {{
             background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 900;
-            font-size: 6rem; /* 글씨 크기를 4.5rem에서 6rem으로 대폭 확대 */
-            margin-bottom: 0px;
-            padding-bottom: 0px;
-            line-height: 1.2;
+            font-weight: 900 !important;
+            /* !important를 붙여서 Streamlit 기본 설정을 강제로 무시하고 무조건 크게 만듭니다 */
+            font-size: 6rem !important; 
+            margin-bottom: 0px !important;
+            padding-bottom: 0px !important;
+            line-height: 1.1 !important;
         }}
         .insta-subtitle {{
             background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
@@ -81,7 +83,7 @@ class InstagramAppUI:
         </style>
         <div class="title-container">
             {logo_html}
-            <p class="insta-title">Isntsta</p>
+            <div class="insta-title">Isntsta</div>
         </div>
         """, unsafe_allow_html=True)
         
