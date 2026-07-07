@@ -44,10 +44,10 @@ class InstagramAppUI:
     def run(self):
         logo_b64 = get_base64_image("logo.png")
         if logo_b64:
-            # 로고 크기는 제목과 어울리도록 4.5rem 수준으로 고정
+            # 로고 크기는 4.5rem 유지
             logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="height: 4.5rem; margin-right: 20px; border-radius: 15px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1);">'
         else:
-            logo_html = '<span style="font-size: 3rem; margin-right: 12px;">🕵️‍♂️</span>'
+            logo_html = '<span style="font-size: 4.5rem; margin-right: 20px;">🕵️‍♂️</span>'
 
         st.markdown(f"""
         <style>
@@ -61,8 +61,7 @@ class InstagramAppUI:
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900 !important;
-            /* !important를 붙여서 Streamlit 기본 설정을 강제로 무시하고 무조건 크게 만듭니다 */
-            font-size: 6rem !important; 
+            font-size: 4.5rem !important; /* 글씨 크기만 6rem에서 4.5rem으로 낮춤 */
             margin-bottom: 0px !important;
             padding-bottom: 0px !important;
             line-height: 1.1 !important;
