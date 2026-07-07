@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 class InstagramDataParser:
-    """HTML 및 JSON 데이터를 파싱하여 데이터프레임으로 변환하는 책임을 가집니다."""
+    """HTML 및 JSON 데이터를 파싱하여 데이터프레임으로 변환"""
     
     @staticmethod
     def parse(file_content: bytes, file_type: str) -> pd.DataFrame:
@@ -65,8 +65,6 @@ class InstagramDataParser:
     def _parse_json(json_content: bytes) -> pd.DataFrame:
         data = json.loads(json_content)
         records = []
-        
-        # JSON 내부 구조를 재귀적으로 탐색하여 유저 정보 추출
         def extract_users(obj):
             if isinstance(obj, dict):
                 if "string_list_data" in obj and len(obj["string_list_data"]) > 0:
