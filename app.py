@@ -159,7 +159,7 @@ class InstagramAppUI:
                 if os.path.exists("step2.jpg"): st.image("step2.jpg", use_container_width=True)
                 else: st.info("📷 (2단계 이미지 준비 중)")
             elif step == 3:
-                if os.path.exists("step3.jpg"): st.image("step3.jpg", use_container_width=True)
+                if os.path.exists("step3.jpeg"): st.image("step3.jpeg", use_container_width=True)
                 else: st.info("📷 (3단계 이미지 준비 중)")
             elif step == 4:
                 st.markdown("<h1 style='text-align: center; font-size: 5rem; margin: 20px 0;'>🎉</h1>", unsafe_allow_html=True)
